@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
+
+html, body { background: #f5f1e8; color: #0a1f1c; font-family: 'Montserrat', sans-serif; }
+.font-sans { font-family: 'Montserrat', sans-serif; }
+
+.font-display { font-family: 'Fraunces', serif; font-variation-settings: "opsz" 144; }

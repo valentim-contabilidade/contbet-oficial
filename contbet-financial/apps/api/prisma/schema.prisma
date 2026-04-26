@@ -1,0 +1,356 @@
+// ContBet Prisma schema - com Módulo Financeiro
+// Multi-tenant: Manager pertence a Company, Owner pertence a Brand (que pertence a Company)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Profile {
+  ADMIN
+  MANAGER
+  OWNER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum AccountType {
+  ASSET       // Ativo
+  LIABILITY   // Passivo
+  EQUITY      // Patrimônio Líquido
+  REVENUE     // Receita
+  EXPENSE     // Despesa
+}
+
+enum BankAccountType {
+  CHECKING       // Conta Corrente
+  SAVINGS        // Poupança
+  PAYMENT        // Conta de Pagamento
+  PSP_GATEWAY    // Conta de gateway/PSP
+  CASH           // Caixa físico
+}
+
+enum PaymentStatus {
+  PENDING        // Pendente
+  PAID           // Pago / Recebido
+  OVERDUE        // Vencido
+  CANCELLED      // Cancelado
+  PARTIAL        // Pago parcialmente
+}
+
+enum TransactionType {
+  INCOME         // Entrada (recebimento)
+  EXPENSE        // Saída (pagamento)
+  TRANSFER       // Transferência entre contas
+}
+
+enum CategoryType {
+  INCOME         // Receita
+  EXPENSE        // Despesa
+}
+
+// =================== MÓDULOS BASE ===================
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  cnpj        String   @unique
+  address     String?
+  city        String
+  state       String   @db.VarChar(2)
+  logo        String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  users                User[]
+  brands               Brand[]
+  chart_of_accounts    ChartOfAccount[]
+  financial_categories FinancialCategory[]
+  bank_accounts        BankAccount[]
+  accounts_payable     AccountPayable[]
+  accounts_receivable  AccountReceivable[]
+  transactions         Transaction[]
+
+  @@index([metadeleted])
+  @@map("companies")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  username      String    @unique
+  email         String
+  password_hash String
+  profile       Profile
+  status        Status    @default(ACTIVE)
+  failed_logins Int       @default(0)
+  locked_until  DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  metadeleted   Boolean   @default(false)
+
+  company_id String?
+  company    Company? @relation(fields: [company_id], references: [id])
+  brand_id   String?
+  brand      Brand?   @relation(fields: [brand_id], references: [id])
+
+  audit_logs AuditLog[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("users")
+}
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String?
+  description String?  @db.Text
+  status      Status   @default(ACTIVE)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  users                User[]
+  accounts_payable     AccountPayable[]
+  accounts_receivable  AccountReceivable[]
+  transactions         Transaction[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("brands")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entity_id String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  user_id String?
+  user    User?   @relation(fields: [user_id], references: [id])
+
+  @@index([entity, entity_id])
+  @@index([user_id])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// =================== MÓDULO FINANCEIRO ===================
+
+// Plano de Contas: estrutura contábil hierárquica (Ativo, Passivo, Receita, Despesa)
+model ChartOfAccount {
+  id          String      @id @default(cuid())
+  code        String      // Ex: "1.1.01", "3.1.02" (codificação contábil)
+  name        String
+  type        AccountType
+  description String?
+  parent_id   String?
+  parent      ChartOfAccount?  @relation("AccountHierarchy", fields: [parent_id], references: [id])
+  children    ChartOfAccount[] @relation("AccountHierarchy")
+  is_active   Boolean     @default(true)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  metadeleted Boolean     @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  payables    AccountPayable[]
+  receivables AccountReceivable[]
+  transactions Transaction[]
+
+  @@unique([company_id, code])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("chart_of_accounts")
+}
+
+// Categorias operacionais (mais simples que plano de contas)
+model FinancialCategory {
+  id          String       @id @default(cuid())
+  name        String
+  type        CategoryType
+  color       String?      // hex color para visualização
+  description String?
+  is_active   Boolean      @default(true)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  metadeleted Boolean      @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  payables    AccountPayable[]
+  receivables AccountReceivable[]
+  transactions Transaction[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("financial_categories")
+}
+
+// Contas bancárias (correntes, poupança, PSPs)
+model BankAccount {
+  id              String          @id @default(cuid())
+  name            String          // "Itaú CC Principal", "Pagar.me Gateway"
+  type            BankAccountType
+  bank_name       String?         // "Itaú", "Bradesco", "Stripe", "Pagar.me"
+  bank_code       String?         // "341", "237"
+  agency          String?
+  account_number  String?
+  initial_balance BigInt          @default(0) // em centavos
+  current_balance BigInt          @default(0) // calculado pelas transações
+  description     String?
+  is_active       Boolean         @default(true)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  metadeleted     Boolean         @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  transactions       Transaction[] @relation("AccountTransactions")
+  transfers_received Transaction[] @relation("TransferDestination")
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("bank_accounts")
+}
+
+// Contas a Pagar
+model AccountPayable {
+  id              String        @id @default(cuid())
+  description     String
+  supplier_name   String?       // razão social/nome do fornecedor
+  supplier_doc    String?       // CNPJ/CPF
+  document_number String?       // número da NF, boleto, etc
+  amount          BigInt        // em centavos
+  paid_amount     BigInt        @default(0)
+  issue_date      DateTime      // data de emissão
+  due_date        DateTime      // data de vencimento
+  payment_date    DateTime?     // data efetiva do pagamento
+  status          PaymentStatus @default(PENDING)
+  notes           String?       @db.Text
+  is_recurring    Boolean       @default(false)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  metadeleted     Boolean       @default(false)
+
+  company_id  String
+  company     Company  @relation(fields: [company_id], references: [id])
+  brand_id    String?
+  brand       Brand?   @relation(fields: [brand_id], references: [id])
+
+  category_id String?
+  category    FinancialCategory? @relation(fields: [category_id], references: [id])
+
+  account_id  String?
+  account     ChartOfAccount? @relation(fields: [account_id], references: [id])
+
+  transactions Transaction[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([status])
+  @@index([due_date])
+  @@map("accounts_payable")
+}
+
+// Contas a Receber
+model AccountReceivable {
+  id              String        @id @default(cuid())
+  description     String
+  customer_name   String?
+  customer_doc    String?
+  document_number String?
+  amount          BigInt
+  received_amount BigInt        @default(0)
+  issue_date      DateTime
+  due_date        DateTime
+  receipt_date    DateTime?
+  status          PaymentStatus @default(PENDING)
+  notes           String?       @db.Text
+  is_recurring    Boolean       @default(false)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  metadeleted     Boolean       @default(false)
+
+  company_id  String
+  company     Company  @relation(fields: [company_id], references: [id])
+  brand_id    String?
+  brand       Brand?   @relation(fields: [brand_id], references: [id])
+
+  category_id String?
+  category    FinancialCategory? @relation(fields: [category_id], references: [id])
+
+  account_id  String?
+  account     ChartOfAccount? @relation(fields: [account_id], references: [id])
+
+  transactions Transaction[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([status])
+  @@index([due_date])
+  @@map("accounts_receivable")
+}
+
+// Lançamentos / Movimentações financeiras efetivas
+model Transaction {
+  id          String          @id @default(cuid())
+  description String
+  amount      BigInt          // em centavos
+  type        TransactionType
+  date        DateTime        // data do lançamento
+  notes       String?         @db.Text
+  reference   String?         // referência externa (TID, NSU, etc)
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+  metadeleted Boolean         @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+  brand_id   String?
+  brand      Brand?  @relation(fields: [brand_id], references: [id])
+
+  // Conta bancária origem (sempre presente)
+  bank_account_id String
+  bank_account    BankAccount @relation("AccountTransactions", fields: [bank_account_id], references: [id])
+
+  // Para transferências: conta destino
+  destination_account_id String?
+  destination_account    BankAccount? @relation("TransferDestination", fields: [destination_account_id], references: [id])
+
+  // Categorização
+  category_id String?
+  category    FinancialCategory? @relation(fields: [category_id], references: [id])
+
+  account_id  String?
+  account     ChartOfAccount? @relation(fields: [account_id], references: [id])
+
+  // Vínculo com contas a pagar/receber (quando o lançamento quita um título)
+  payable_id    String?
+  payable       AccountPayable? @relation(fields: [payable_id], references: [id])
+  receivable_id String?
+  receivable    AccountReceivable? @relation(fields: [receivable_id], references: [id])
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([date])
+  @@index([bank_account_id])
+  @@map("transactions")
+}

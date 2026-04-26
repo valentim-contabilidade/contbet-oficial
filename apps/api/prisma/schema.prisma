@@ -1,0 +1,1429 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Profile {
+  ADMIN
+  MANAGER
+  OWNER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum BankAccountType {
+  CHECKING
+  SAVINGS
+  PAYMENT
+  PSP_GATEWAY
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+  PARTIAL
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum ContactPersonType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum StatementStatus {
+  PROCESSING
+  RECONCILED
+  PARTIAL
+  UNRECONCILED
+}
+
+enum StatementLineStatus {
+  UNMATCHED
+  MATCHED
+  IGNORED
+  CREATED
+}
+
+enum StatementLineType {
+  CREDIT
+  DEBIT
+}
+
+enum GgrSourceType {
+  CSV_UPLOAD
+  XLSX_UPLOAD
+  API_REST
+  MANUAL
+}
+
+enum GgrApurationStatus {
+  OPEN
+  CLOSED
+  PAID
+}
+
+enum DataSourceStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+}
+
+enum TaxRegime {
+  LUCRO_REAL
+  LUCRO_PRESUMIDO
+  SIMPLES_NACIONAL
+}
+
+enum PisCofinsRegime {
+  CUMULATIVO
+  NAO_CUMULATIVO
+}
+
+enum IrpjApurationPeriod {
+  TRIMESTRAL
+  ANUAL_ESTIMATIVA
+}
+
+enum IrpjApurationStatus {
+  OPEN
+  CLOSED
+  PAID
+}
+
+enum LalurAdjustmentType {
+  ADDITION
+  EXCLUSION
+}
+
+enum TaxApurationStatus {
+  OPEN
+  CLOSED
+  PAID
+}
+
+enum IssCalculationBase {
+  GGR
+  NGR
+}
+
+enum PayableSource {
+  MANUAL
+  FISCAL_IMPORT
+  RECURRING
+  PAYROLL
+  TAX_APURATION
+}
+
+enum RevenueType {
+  OPERATIONAL
+  NON_OPERATIONAL
+}
+
+enum JournalEntrySource {
+  MANUAL
+  GGR_DAILY
+  PAYABLE_PAID
+  RECEIVABLE_RECEIVED
+  TAX_APURATION
+  PAYROLL
+  ADJUSTMENT
+}
+
+enum FiscalDocumentType {
+  NFSE
+  NFE
+  NFCE
+  CTE
+}
+
+enum FiscalDocumentDirection {
+  INCOMING
+  OUTGOING
+}
+
+enum FiscalDocumentStatus {
+  PENDING
+  AUTHORIZED
+  CANCELLED
+  REJECTED
+  ERROR
+}
+
+enum FiscalProviderType {
+  PLUGNOTAS
+  FOCUS_NFE
+  NFE_IO
+  ARQUIVEI
+}
+
+enum BankIntegrationProvider {
+  PLUGGY
+  BELVO
+  KLAVI
+}
+
+enum BankConnectionStatus {
+  ACTIVE
+  WAITING_USER_INPUT
+  UPDATING
+  LOGIN_ERROR
+  OUTDATED
+  DISCONNECTED
+  ERROR
+}
+
+enum FiscalCertificateStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+// === NOVOS ENUMS para Natureza Contábil ===
+
+// Onde a natureza aparece na DRE
+enum DreSection {
+  RECEITA_OPERACIONAL          // Receita Bruta
+  DEDUCAO_RECEITA              // Deduções da Receita (impostos sobre receita, devoluções)
+  CUSTO_OPERACIONAL            // Custos (prêmios, CMV)
+  DESPESA_OPERACIONAL          // Despesas Operacionais (administrativas, comerciais, pessoal)
+  DESPESA_NAO_OPERACIONAL      // Despesas Não Operacionais
+  RECEITA_FINANCEIRA           // Receitas Financeiras
+  DESPESA_FINANCEIRA           // Despesas Financeiras (juros, IOF)
+  IMPOSTO_LUCRO                // IRPJ + CSLL
+}
+
+// Tipo da natureza: receita ou despesa
+enum NatureType {
+  RECEITA
+  DESPESA
+}
+
+// =================== EMPRESAS, USUÁRIOS, MARCAS ===================
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  cnpj        String   @unique
+  address     String?
+  city        String
+  state       String   @db.VarChar(2)
+  logo        String?  @db.Text
+  tax_regime  TaxRegime @default(LUCRO_REAL)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  users                User[]
+  brands               Brand[]
+  chart_of_accounts    ChartOfAccount[]
+  financial_categories FinancialCategory[]
+  financial_natures    FinancialNature[]
+  bank_accounts        BankAccount[]
+  accounts_payable     AccountPayable[]
+  accounts_receivable  AccountReceivable[]
+  transactions         Transaction[]
+  contacts             Contact[]
+  bank_statements      BankStatement[]
+  ggr_records          GgrDailyRecord[]
+  ggr_apurations       GgrMonthlyApuration[]
+  data_sources         DataSource[]
+  tax_config           CompanyTaxConfig?
+  irpj_apurations      IrpjCsllApuration[]
+  pis_cofins_apurations PisCofinsApuration[]
+  iss_apurations       IssApuration[]
+  lalur_adjustments    LalurAdjustment[]
+  fiscal_provider      FiscalProvider?
+  fiscal_certificates  FiscalCertificate[]
+  fiscal_documents     FiscalDocument[]
+  fiscal_sync_logs     FiscalSyncLog[]
+  journal_entries      JournalEntry[]
+  bank_integration     BankIntegration?
+  bank_connections     BankConnection[]
+
+  @@index([metadeleted])
+  @@map("companies")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  username      String    @unique
+  email         String
+  password_hash String
+  profile       Profile
+  status        Status    @default(ACTIVE)
+  failed_logins Int       @default(0)
+  locked_until  DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  metadeleted   Boolean   @default(false)
+
+  company_id String?
+  company    Company? @relation(fields: [company_id], references: [id])
+  brand_id   String?
+  brand      Brand?   @relation(fields: [brand_id], references: [id])
+
+  audit_logs AuditLog[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("users")
+}
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String?
+  description String?  @db.Text
+  status      Status   @default(ACTIVE)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  users                User[]
+  accounts_payable     AccountPayable[]
+  accounts_receivable  AccountReceivable[]
+  transactions         Transaction[]
+  ggr_records          GgrDailyRecord[]
+  ggr_apurations       GgrMonthlyApuration[]
+  data_sources         DataSource[]
+  contacts             Contact[] @relation("ContactBrand")
+  journal_entries      JournalEntry[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("brands")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entity_id String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  user_id String?
+  user    User?   @relation(fields: [user_id], references: [id])
+
+  @@index([entity, entity_id])
+  @@index([user_id])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// =================== CONTATOS ===================
+
+model Contact {
+  id          String            @id @default(cuid())
+  person_type ContactPersonType
+  name        String
+  trade_name  String?
+  document    String?
+  email       String?
+  phone       String?
+
+  address      String?
+  number       String?
+  complement   String?
+  neighborhood String?
+  city         String?
+  state        String?           @db.VarChar(2)
+  zip_code     String?
+
+  is_customer Boolean @default(false)
+  is_supplier Boolean @default(false)
+  is_employee Boolean @default(false)
+  is_partner  Boolean @default(false)
+
+  employee_role             String?
+  employee_salary           BigInt?
+  employee_base_salary      BigInt?
+  employee_variable_salary  BigInt?
+  employee_admission_date   DateTime?
+  employee_dismissal_date   DateTime?
+
+  partner_share_percentage Decimal? @db.Decimal(5, 2)
+
+  notes       String?  @db.Text
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  brand_id String?
+  brand    Brand?  @relation("ContactBrand", fields: [brand_id], references: [id])
+
+  payables_as_supplier    AccountPayable[]    @relation("ContactSupplier")
+  receivables_as_customer AccountReceivable[] @relation("ContactCustomer")
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([is_customer])
+  @@index([is_supplier])
+  @@index([is_employee])
+  @@map("contacts")
+}
+
+// =================== BANCOS ===================
+
+model Bank {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  ispb        String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  bank_accounts BankAccount[]
+
+  @@index([metadeleted])
+  @@map("banks")
+}
+
+// =================== FINANCEIRO ===================
+
+model ChartOfAccount {
+  id          String      @id @default(cuid())
+  code        String
+  name        String
+  type        AccountType
+  description String?
+  parent_id   String?
+  parent      ChartOfAccount?  @relation("AccountHierarchy", fields: [parent_id], references: [id])
+  children    ChartOfAccount[] @relation("AccountHierarchy")
+  is_active   Boolean     @default(true)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  metadeleted Boolean     @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  payables    AccountPayable[]
+  receivables AccountReceivable[]
+  transactions Transaction[]
+  journal_lines JournalEntryLine[]
+
+  @@unique([company_id, code])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("chart_of_accounts")
+}
+
+model FinancialCategory {
+  id          String       @id @default(cuid())
+  name        String
+  type        CategoryType
+  color       String?
+  description String?
+  is_active   Boolean      @default(true)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  metadeleted Boolean      @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  payables    AccountPayable[]
+  receivables AccountReceivable[]
+  transactions Transaction[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("financial_categories")
+}
+
+// === NOVA ENTIDADE: Natureza Contábil (estrutura DRE) ===
+//
+// A Natureza define EM QUAL LINHA da DRE o lançamento aparece.
+// Exemplo:
+//   - "Salários e Encargos" → DESPESA_OPERACIONAL → ordem 1
+//   - "Aluguel" → DESPESA_OPERACIONAL → ordem 2
+//   - "Marketing" → DESPESA_OPERACIONAL → ordem 3
+//
+// Diferente da Categoria (que é flexível e visual), a Natureza é estrutural
+// e segue o padrão contábil de DRE.
+model FinancialNature {
+  id   String @id @default(cuid())
+  name String
+
+  type        NatureType    // RECEITA ou DESPESA
+  dre_section DreSection    // onde aparece na DRE
+  dre_order   Int           @default(0)  // ordem dentro da seção da DRE
+
+  description String? @db.Text
+  is_default  Boolean @default(false)  // criada pelo seed (padrão sistema)
+  is_active   Boolean @default(true)
+
+  // Códigos contábeis (opcionais, para escritórios contábeis avançados)
+  accounting_code String?
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  payables    AccountPayable[]
+  receivables AccountReceivable[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([type])
+  @@index([dre_section])
+  @@map("financial_natures")
+}
+
+model BankAccount {
+  id              String          @id @default(cuid())
+  name            String
+  type            BankAccountType
+  bank_name       String?
+  bank_code       String?
+  agency          String?
+  account_number  String?
+  initial_balance BigInt          @default(0)
+  current_balance BigInt          @default(0)
+  description     String?
+  is_active       Boolean         @default(true)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  metadeleted     Boolean         @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  bank_id String?
+  bank    Bank?   @relation(fields: [bank_id], references: [id])
+
+  // Vínculo com conexão Open Finance (Pluggy etc.). Conta capturada do provedor.
+  bank_connection_id   String?
+  bank_connection      BankConnection? @relation(fields: [bank_connection_id], references: [id])
+  // ID da conta no provedor (Pluggy accountId) — usado para sync incremental.
+  provider_account_id  String?
+
+  transactions       Transaction[] @relation("AccountTransactions")
+  transfers_received Transaction[] @relation("TransferDestination")
+  statements         BankStatement[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([bank_connection_id])
+  @@map("bank_accounts")
+}
+
+model AccountPayable {
+  id              String        @id @default(cuid())
+  description     String
+  supplier_name   String?
+  supplier_doc    String?
+  document_number String?
+  amount          BigInt
+  paid_amount     BigInt        @default(0)
+  issue_date      DateTime
+  due_date        DateTime
+  payment_date    DateTime?
+  status          PaymentStatus @default(PENDING)
+  notes           String?       @db.Text
+  is_recurring    Boolean       @default(false)
+
+  is_deductible_expense       Boolean @default(true)
+  generates_pis_cofins_credit Boolean @default(false)
+  pis_credit_amount    BigInt @default(0)
+  cofins_credit_amount BigInt @default(0)
+
+  source           PayableSource @default(MANUAL)
+  duplicate_of_id  String?
+  duplicate_of     AccountPayable?  @relation("PayableDuplicates", fields: [duplicate_of_id], references: [id])
+  duplicates       AccountPayable[] @relation("PayableDuplicates")
+
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  metadeleted     Boolean       @default(false)
+
+  company_id  String
+  company     Company  @relation(fields: [company_id], references: [id])
+  brand_id    String?
+  brand       Brand?   @relation(fields: [brand_id], references: [id])
+
+  contact_id String?
+  contact    Contact? @relation("ContactSupplier", fields: [contact_id], references: [id])
+
+  category_id String?
+  category    FinancialCategory? @relation(fields: [category_id], references: [id])
+
+  // === NOVO: vinculação com Natureza Contábil ===
+  nature_id String?
+  nature    FinancialNature? @relation(fields: [nature_id], references: [id])
+
+  account_id  String?
+  account     ChartOfAccount? @relation(fields: [account_id], references: [id])
+
+  ggr_apuration_id String?
+  ggr_apuration    GgrMonthlyApuration? @relation(fields: [ggr_apuration_id], references: [id])
+
+  irpj_apuration_id String?
+  irpj_apuration    IrpjCsllApuration? @relation(fields: [irpj_apuration_id], references: [id])
+
+  pis_cofins_apuration_id String?
+  pis_cofins_apuration    PisCofinsApuration? @relation(fields: [pis_cofins_apuration_id], references: [id])
+
+  iss_apuration_id String?
+  iss_apuration    IssApuration? @relation(fields: [iss_apuration_id], references: [id])
+
+  transactions Transaction[]
+  fiscal_documents FiscalDocument[] @relation("PayableFiscalDocs")
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([status])
+  @@index([due_date])
+  @@index([is_deductible_expense])
+  @@index([generates_pis_cofins_credit])
+  @@index([nature_id])
+  @@index([source])
+  @@index([duplicate_of_id])
+  @@map("accounts_payable")
+}
+
+model AccountReceivable {
+  id              String        @id @default(cuid())
+  description     String
+  customer_name   String?
+  customer_doc    String?
+  document_number String?
+  amount          BigInt
+  received_amount BigInt        @default(0)
+  issue_date      DateTime
+  due_date        DateTime
+  receipt_date    DateTime?
+  status          PaymentStatus @default(PENDING)
+  notes           String?       @db.Text
+  is_recurring    Boolean       @default(false)
+
+  revenue_type    RevenueType   @default(NON_OPERATIONAL)
+
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  metadeleted     Boolean       @default(false)
+
+  company_id  String
+  company     Company  @relation(fields: [company_id], references: [id])
+  brand_id    String?
+  brand       Brand?   @relation(fields: [brand_id], references: [id])
+
+  contact_id String?
+  contact    Contact? @relation("ContactCustomer", fields: [contact_id], references: [id])
+
+  category_id String?
+  category    FinancialCategory? @relation(fields: [category_id], references: [id])
+
+  // === NOVO: vinculação com Natureza Contábil ===
+  nature_id String?
+  nature    FinancialNature? @relation(fields: [nature_id], references: [id])
+
+  account_id  String?
+  account     ChartOfAccount? @relation(fields: [account_id], references: [id])
+
+  transactions Transaction[]
+  fiscal_documents FiscalDocument[] @relation("ReceivableFiscalDocs")
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([status])
+  @@index([due_date])
+  @@index([nature_id])
+  @@index([revenue_type])
+  @@map("accounts_receivable")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  description String
+  amount      BigInt
+  type        TransactionType
+  date        DateTime
+  notes       String?         @db.Text
+  reference   String?
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+  metadeleted Boolean         @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+  brand_id   String?
+  brand      Brand?  @relation(fields: [brand_id], references: [id])
+
+  bank_account_id String
+  bank_account    BankAccount @relation("AccountTransactions", fields: [bank_account_id], references: [id])
+
+  destination_account_id String?
+  destination_account    BankAccount? @relation("TransferDestination", fields: [destination_account_id], references: [id])
+
+  category_id String?
+  category    FinancialCategory? @relation(fields: [category_id], references: [id])
+
+  account_id  String?
+  account     ChartOfAccount? @relation(fields: [account_id], references: [id])
+
+  payable_id    String?
+  payable       AccountPayable? @relation(fields: [payable_id], references: [id])
+  receivable_id String?
+  receivable    AccountReceivable? @relation(fields: [receivable_id], references: [id])
+
+  statement_lines BankStatementLine[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([date])
+  @@index([bank_account_id])
+  @@map("transactions")
+}
+
+model BankStatement {
+  id              String          @id @default(cuid())
+  filename        String
+  file_format     String
+  start_date      DateTime
+  end_date        DateTime
+  initial_balance BigInt?
+  final_balance   BigInt?
+  status          StatementStatus @default(PROCESSING)
+  total_lines     Int             @default(0)
+  matched_lines   Int             @default(0)
+  notes           String?         @db.Text
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  metadeleted     Boolean         @default(false)
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  bank_account_id String
+  bank_account    BankAccount @relation(fields: [bank_account_id], references: [id])
+
+  lines BankStatementLine[]
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([bank_account_id])
+  @@map("bank_statements")
+}
+
+model BankStatementLine {
+  id          String              @id @default(cuid())
+  date        DateTime
+  description String
+  amount      BigInt
+  type        StatementLineType
+  fit_id      String?
+  reference   String?
+  status      StatementLineStatus @default(UNMATCHED)
+  match_score Int?
+  created_at  DateTime            @default(now())
+  updated_at  DateTime            @updatedAt
+
+  statement_id String
+  statement    BankStatement @relation(fields: [statement_id], references: [id], onDelete: Cascade)
+
+  transaction_id String?
+  transaction    Transaction? @relation(fields: [transaction_id], references: [id])
+
+  @@index([statement_id])
+  @@index([status])
+  @@index([fit_id])
+  @@map("bank_statement_lines")
+}
+
+model GgrDailyRecord {
+  id            String        @id @default(cuid())
+  date          DateTime      @db.Date
+
+  total_bets         BigInt @default(0)
+  total_prizes       BigInt @default(0)
+  total_deposits     BigInt @default(0)
+  total_withdrawals  BigInt @default(0)
+
+  bet_count          Int    @default(0)
+  prize_count        Int    @default(0)
+  deposit_count      Int    @default(0)
+  withdrawal_count   Int    @default(0)
+  active_players     Int    @default(0)
+
+  ggr           BigInt @default(0)
+
+  source_type      GgrSourceType
+  source_reference String?
+  source_id        String?
+
+  notes       String?  @db.Text
+  imported_at DateTime @default(now())
+  imported_by_id String?
+
+  brand_id   String
+  brand      Brand   @relation(fields: [brand_id], references: [id])
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  data_source_id String?
+  data_source    DataSource? @relation(fields: [data_source_id], references: [id])
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@unique([brand_id, date])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([brand_id, date])
+  @@index([date])
+  @@map("ggr_daily_records")
+}
+
+model GgrMonthlyApuration {
+  id    String @id @default(cuid())
+  year  Int
+  month Int
+
+  total_bets         BigInt @default(0)
+  total_prizes       BigInt @default(0)
+  total_deposits     BigInt @default(0)
+  total_withdrawals  BigInt @default(0)
+
+  ggr           BigInt @default(0)
+  net_revenue   BigInt @default(0)
+
+  tax_lei14790_rate    Decimal @default(12.0) @db.Decimal(5, 2)
+  tax_lei14790_amount  BigInt  @default(0)
+
+  irrf_threshold_cents BigInt  @default(282400)
+  irrf_rate            Decimal @default(15.0) @db.Decimal(5, 2)
+  irrf_taxable_base    BigInt  @default(0)
+  irrf_amount          BigInt  @default(0)
+
+  pis_rate    Decimal @default(0.65) @db.Decimal(5, 2)
+  pis_amount  BigInt  @default(0)
+  pis_credits BigInt  @default(0)
+  pis_amount_payable BigInt @default(0)
+
+  cofins_rate    Decimal @default(3.0) @db.Decimal(5, 2)
+  cofins_amount  BigInt  @default(0)
+  cofins_credits BigInt  @default(0)
+  cofins_amount_payable BigInt @default(0)
+
+  pis_cofins_regime PisCofinsRegime @default(CUMULATIVO)
+
+  total_taxes BigInt @default(0)
+
+  status      GgrApurationStatus @default(OPEN)
+  closed_at   DateTime?
+  closed_by_id String?
+  paid_at     DateTime?
+
+  notes String? @db.Text
+
+  brand_id   String
+  brand      Brand   @relation(fields: [brand_id], references: [id])
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  generated_payables AccountPayable[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@unique([brand_id, year, month])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([brand_id, year, month])
+  @@index([status])
+  @@map("ggr_monthly_apurations")
+}
+
+model DataSource {
+  id          String           @id @default(cuid())
+  name        String
+  type        GgrSourceType
+  status      DataSourceStatus @default(ACTIVE)
+
+  base_url     String?         @db.Text
+  auth_type    String?
+  auth_token   String?         @db.Text
+
+  field_mapping Json?
+  config Json?
+
+  last_sync_at DateTime?
+  last_error   String?    @db.Text
+
+  brand_id   String
+  brand      Brand   @relation(fields: [brand_id], references: [id])
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  ggr_records GgrDailyRecord[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([brand_id])
+  @@index([status])
+  @@map("data_sources")
+}
+
+model CompanyTaxConfig {
+  id String @id @default(cuid())
+
+  tax_regime         TaxRegime           @default(LUCRO_REAL)
+  pis_cofins_regime  PisCofinsRegime     @default(NAO_CUMULATIVO)
+  apuration_period   IrpjApurationPeriod @default(TRIMESTRAL)
+
+  pis_rate            Decimal @default(1.65) @db.Decimal(5, 2)
+  cofins_rate         Decimal @default(7.6)  @db.Decimal(5, 2)
+  irpj_rate           Decimal @default(15.0) @db.Decimal(5, 2)
+  irpj_additional_rate Decimal @default(10.0) @db.Decimal(5, 2)
+  irpj_additional_threshold_cents BigInt @default(6000000)
+  csll_rate           Decimal @default(9.0)  @db.Decimal(5, 2)
+
+  // Lucro Presumido — percentuais de presunção sobre a receita.
+  // Default 32% (atividades de serviços, inclui apostas/jogos).
+  presumed_irpj_rate  Decimal @default(32.0) @db.Decimal(5, 2)
+  presumed_csll_rate  Decimal @default(32.0) @db.Decimal(5, 2)
+
+  iss_rate             Decimal            @default(5.0) @db.Decimal(5, 2)
+  iss_calculation_base IssCalculationBase @default(GGR)
+
+  notes String? @db.Text
+
+  company_id String  @unique
+  company    Company @relation(fields: [company_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("company_tax_configs")
+}
+
+model IrpjCsllApuration {
+  id String @id @default(cuid())
+
+  period_type IrpjApurationPeriod
+  year        Int
+  quarter     Int?
+  month       Int?
+
+  ggr_revenue       BigInt @default(0)
+  other_revenue     BigInt @default(0)
+  total_revenue     BigInt @default(0)
+
+  deductible_expenses BigInt @default(0)
+
+  accounting_profit BigInt @default(0)
+
+  total_additions  BigInt @default(0)
+  total_exclusions BigInt @default(0)
+
+  taxable_profit BigInt @default(0)
+
+  irpj_base_amount         BigInt  @default(0)
+  irpj_additional_amount   BigInt  @default(0)
+  irpj_total               BigInt  @default(0)
+  irpj_rate                Decimal @default(15.0) @db.Decimal(5, 2)
+  irpj_additional_rate     Decimal @default(10.0) @db.Decimal(5, 2)
+  irpj_additional_threshold BigInt @default(6000000)
+
+  csll_amount BigInt  @default(0)
+  csll_rate   Decimal @default(9.0) @db.Decimal(5, 2)
+
+  total_taxes BigInt @default(0)
+
+  status      IrpjApurationStatus @default(OPEN)
+  closed_at   DateTime?
+  closed_by_id String?
+  paid_at     DateTime?
+
+  notes String? @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  generated_payables AccountPayable[]
+  lalur_adjustments  LalurAdjustment[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@unique([company_id, period_type, year, quarter, month])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([year, quarter])
+  @@index([status])
+  @@map("irpj_csll_apurations")
+}
+
+model LalurAdjustment {
+  id String @id @default(cuid())
+
+  type        LalurAdjustmentType
+  description String
+  amount      BigInt
+  notes       String? @db.Text
+
+  reference_date DateTime?
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  apuration_id String
+  apuration    IrpjCsllApuration @relation(fields: [apuration_id], references: [id], onDelete: Cascade)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([apuration_id])
+  @@map("lalur_adjustments")
+}
+
+model PisCofinsApuration {
+  id    String @id @default(cuid())
+  year  Int
+  month Int
+
+  pis_cofins_regime PisCofinsRegime @default(NAO_CUMULATIVO)
+
+  ggr_revenue   BigInt @default(0)
+  other_revenue BigInt @default(0)
+  total_revenue BigInt @default(0)
+
+  expenses_with_credit BigInt @default(0)
+
+  pis_rate           Decimal @default(1.65) @db.Decimal(5, 2)
+  pis_amount         BigInt  @default(0)
+  pis_credits        BigInt  @default(0)
+  pis_amount_payable BigInt  @default(0)
+
+  cofins_rate           Decimal @default(7.6) @db.Decimal(5, 2)
+  cofins_amount         BigInt  @default(0)
+  cofins_credits        BigInt  @default(0)
+  cofins_amount_payable BigInt  @default(0)
+
+  total_taxes BigInt @default(0)
+
+  status       TaxApurationStatus @default(OPEN)
+  closed_at    DateTime?
+  closed_by_id String?
+  paid_at      DateTime?
+  notes        String? @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  generated_payables AccountPayable[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@unique([company_id, year, month])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([year, month])
+  @@index([status])
+  @@map("pis_cofins_apurations")
+}
+
+model IssApuration {
+  id    String @id @default(cuid())
+  year  Int
+  month Int
+
+  calculation_base IssCalculationBase @default(GGR)
+
+  ggr_amount      BigInt @default(0)
+  bet_tax_amount  BigInt @default(0)
+  base_amount     BigInt @default(0)
+
+  iss_rate    Decimal @default(5.0) @db.Decimal(5, 2)
+  iss_amount  BigInt  @default(0)
+
+  total_taxes BigInt @default(0)
+
+  status       TaxApurationStatus @default(OPEN)
+  closed_at    DateTime?
+  closed_by_id String?
+  paid_at      DateTime?
+  notes        String? @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  generated_payables AccountPayable[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@unique([company_id, year, month])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([year, month])
+  @@index([status])
+  @@map("iss_apurations")
+}
+
+model JournalEntry {
+  id          String              @id @default(cuid())
+  date        DateTime            @db.Date
+  description String              @db.Text
+  reference   String?
+  source      JournalEntrySource  @default(MANUAL)
+  source_id   String?
+
+  total_amount BigInt              @default(0)
+  posted       Boolean             @default(false)
+  posted_at    DateTime?
+
+  notes       String? @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+  brand_id   String?
+  brand      Brand?  @relation(fields: [brand_id], references: [id])
+
+  lines      JournalEntryLine[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([brand_id])
+  @@index([date])
+  @@index([source, source_id])
+  @@map("journal_entries")
+}
+
+model JournalEntryLine {
+  id            String  @id @default(cuid())
+  description   String? @db.Text
+  debit_amount  BigInt  @default(0)
+  credit_amount BigInt  @default(0)
+
+  entry_id   String
+  entry      JournalEntry @relation(fields: [entry_id], references: [id], onDelete: Cascade)
+
+  account_id String
+  account    ChartOfAccount @relation(fields: [account_id], references: [id])
+
+  created_at DateTime @default(now())
+
+  @@index([entry_id])
+  @@index([account_id])
+  @@map("journal_entry_lines")
+}
+
+model BankIntegration {
+  id     String                  @id @default(cuid())
+  type   BankIntegrationProvider @default(PLUGGY)
+
+  client_id     String  @db.Text
+  client_secret String  @db.Text  // criptografado
+  sandbox_mode  Boolean @default(true)
+
+  is_active    Boolean   @default(true)
+  last_error   String?   @db.Text
+  notes        String?   @db.Text
+
+  company_id String  @unique
+  company    Company @relation(fields: [company_id], references: [id])
+
+  connections BankConnection[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("bank_integrations")
+}
+
+model BankConnection {
+  id String @id @default(cuid())
+
+  // ID do "item" no provedor (no Pluggy: itemId; cada item agrega N contas)
+  provider_item_id String
+  // ID do conector (banco) usado pelo provedor
+  provider_connector_id String?
+  // Nome do banco apresentado pelo provedor (Itaú, Bradesco, etc.)
+  institution_name String?
+  // URL do logo do banco
+  institution_logo String? @db.Text
+
+  status        BankConnectionStatus @default(ACTIVE)
+  status_detail String?              @db.Text
+
+  last_sync_at      DateTime?
+  next_auto_sync_at DateTime?
+  last_error        String? @db.Text
+
+  // Dados raw do último estado retornado (JSON)
+  raw_meta Json?
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  integration_id String
+  integration    BankIntegration @relation(fields: [integration_id], references: [id])
+
+  bank_accounts BankAccount[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@unique([integration_id, provider_item_id])
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([status])
+  @@map("bank_connections")
+}
+
+model FiscalProvider {
+  id     String              @id @default(cuid())
+  type   FiscalProviderType  @default(PLUGNOTAS)
+
+  api_key       String  @db.Text
+  api_secret    String? @db.Text
+  base_url      String? @db.Text
+  sandbox_mode  Boolean @default(false)
+
+  is_active     Boolean   @default(true)
+  last_sync_at  DateTime?
+  last_error    String?   @db.Text
+
+  auto_sync_enabled  Boolean @default(true)
+  auto_sync_period   Int     @default(24)
+
+  // ==== Configuração para EMISSÃO de NFSe (saída) ====
+  issue_codigo_servico       String?  // ex.: "17.06"
+  issue_cnae                 String?
+  issue_inscricao_municipal  String?
+  issue_iss_aliquota         Decimal? @db.Decimal(5, 2)
+  issue_descricao_template   String?  @db.Text  // ex.: "Receita de operação de apostas - {data}"
+  issue_tomador_cnpj         String?  // tomador padrão (se ausente, usa o próprio prestador)
+  issue_tomador_razao_social String?
+
+  notes String? @db.Text
+
+  company_id String  @unique
+  company    Company @relation(fields: [company_id], references: [id])
+
+  certificates FiscalCertificate[]
+  documents    FiscalDocument[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@map("fiscal_providers")
+}
+
+model FiscalCertificate {
+  id String @id @default(cuid())
+
+  cnpj          String
+  holder_name   String
+  serial_number String?
+  issuer        String?
+  valid_from    DateTime
+  valid_to      DateTime
+
+  encrypted_pfx_base64 String  @db.Text
+  encrypted_password   String  @db.Text
+
+  status        FiscalCertificateStatus @default(ACTIVE)
+  last_error    String?                  @db.Text
+
+  provider_certificate_id String?
+  uploaded_to_provider_at DateTime?
+
+  notes String? @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  provider_id String?
+  provider    FiscalProvider? @relation(fields: [provider_id], references: [id])
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([cnpj])
+  @@index([status])
+  @@map("fiscal_certificates")
+}
+
+model FiscalDocument {
+  id String @id @default(cuid())
+
+  document_type FiscalDocumentType
+  direction     FiscalDocumentDirection
+  status        FiscalDocumentStatus
+
+  access_key    String?  @unique
+  document_number String?
+  series        String?
+  rps_number    String?
+  rps_series    String?
+
+  issue_date    DateTime
+  authorization_date DateTime?
+  cancellation_date DateTime?
+
+  issuer_cnpj      String
+  issuer_name      String
+  issuer_municipality_code String?
+  issuer_state     String? @db.VarChar(2)
+
+  recipient_cnpj   String?
+  recipient_name   String?
+  recipient_municipality_code String?
+
+  total_amount BigInt @default(0)
+  service_amount  BigInt @default(0)
+  products_amount BigInt @default(0)
+  iss_amount      BigInt @default(0)
+  iss_rate        Decimal? @db.Decimal(5, 2)
+  irrf_amount     BigInt @default(0)
+  inss_amount     BigInt @default(0)
+  pis_amount      BigInt @default(0)
+  cofins_amount   BigInt @default(0)
+  csll_amount     BigInt @default(0)
+  icms_amount     BigInt @default(0)
+  ipi_amount      BigInt @default(0)
+
+  description     String? @db.Text
+  service_code    String?
+  cnae            String?
+  cfop            String?
+  cst             String?
+
+  xml_content       String? @db.Text
+  pdf_url           String? @db.Text
+  provider_document_id String?
+  raw_response      Json?
+
+  matched_payable_id    String?
+  matched_payable       AccountPayable? @relation("PayableFiscalDocs", fields: [matched_payable_id], references: [id])
+
+  matched_receivable_id String?
+  matched_receivable    AccountReceivable? @relation("ReceivableFiscalDocs", fields: [matched_receivable_id], references: [id])
+
+  matched_at        DateTime?
+  matched_by_user_id String?
+  match_score       Int?
+
+  notes      String? @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  provider_id String
+  provider    FiscalProvider @relation(fields: [provider_id], references: [id])
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([document_type])
+  @@index([direction])
+  @@index([status])
+  @@index([issue_date])
+  @@index([issuer_cnpj])
+  @@index([recipient_cnpj])
+  @@index([matched_payable_id])
+  @@index([matched_receivable_id])
+  @@map("fiscal_documents")
+}
+
+model FiscalSyncLog {
+  id String @id @default(cuid())
+
+  sync_type     String
+  start_date    DateTime?
+  end_date      DateTime?
+
+  status        String
+  documents_fetched Int  @default(0)
+  documents_created Int  @default(0)
+  documents_updated Int  @default(0)
+  error_message String?  @db.Text
+
+  duration_ms   Int?
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  triggered_by_user_id String?
+
+  created_at DateTime @default(now())
+
+  @@index([company_id])
+  @@index([created_at])
+  @@map("fiscal_sync_logs")
+}

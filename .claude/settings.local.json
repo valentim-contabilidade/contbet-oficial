@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(ps -p 72962 -o pid,command)",
+      "Bash(npm run *)",
+      "Bash(lsof -nP -iTCP:3001 -sTCP:LISTEN)",
+      "Bash(docker exec *)",
+      "Bash(docker restart *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/api/tax/apurations)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/api/contacts/payroll-preview -X POST)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -X PATCH http://localhost:3001/api/ggr/daily/test)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -X DELETE http://localhost:3001/api/ggr/apurations/test)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/api/accounting/reprocess -X POST)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/api/accounting/income-statement)",
+      "Bash(openssl rand *)",
+      "Bash(docker compose *)",
+      "Bash(git -C /Users/andersonvalentim/Downloads/contbet init -b main)",
+      "Bash(git add *)"
+    ]
+  }
+}

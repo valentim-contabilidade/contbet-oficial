@@ -1,0 +1,45 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+.next/
+build/
+.turbo/
+
+# Variáveis de ambiente (contém segredos)
+.env
+.env.local
+.env.*.local
+
+# Certificados digitais e arquivos sensíveis
+*.pfx
+*.p12
+*.pem
+*.key
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testes / cobertura
+coverage/
+.nyc_output/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Prisma
+apps/api/prisma/migrations/dev.db*
+
+# Temp
+.tmp/
+tmp/
