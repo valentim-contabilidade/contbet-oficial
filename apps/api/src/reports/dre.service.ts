@@ -53,6 +53,23 @@ export class DreService {
     if (current.profile === Profile.MANAGER && current.company_id !== input.company_id) {
       throw new BadRequestException('Sem acesso a esta empresa.');
     }
+    // OPERADOR (gestor de marca): força brand_id na lista atribuída e bloqueia
+    // outras empresas. Se ele não passar brand_id, usa a primeira da lista.
+    if (current.profile === Profile.OWNER) {
+      if (current.company_id !== input.company_id) {
+        throw new BadRequestException('Sem acesso a esta empresa.');
+      }
+      const allowed: string[] = (current.brand_ids && current.brand_ids.length > 0)
+        ? current.brand_ids
+        : (current.brand_id ? [current.brand_id] : []);
+      if (allowed.length === 0) {
+        throw new BadRequestException('Operador sem marca atribuída.');
+      }
+      if (!input.brand_id) input.brand_id = allowed[0];
+      else if (!allowed.includes(input.brand_id)) {
+        throw new BadRequestException('Sem acesso a esta marca.');
+      }
+    }
 
     const company = await this.prisma.company.findUnique({ where: { id: input.company_id } });
     if (!company) throw new BadRequestException('Empresa inválida.');
@@ -83,19 +100,24 @@ export class DreService {
     const lines: DreLine[] = [];
 
     // === RECEITA OPERACIONAL BRUTA ===
+    // Convenção: receita bruta = total de apostas recebidas (turnover/handle).
+    // Os prêmios pagos figuram como CMV/Custo (linha "Custos Operacionais"),
+    // assim a margem bruta = GGR (apostas − prêmios).
+    const receita_bruta = data.total_bets + data.other_revenue;
+    const receita_bruta_prev = previous.total_bets + previous.other_revenue;
     lines.push({
       label: 'RECEITA OPERACIONAL BRUTA',
-      amount: data.ggr_total + data.other_revenue,
-      amount_previous: previous.ggr_total + previous.other_revenue,
-      variation_percent: percentageChange(data.ggr_total + data.other_revenue, previous.ggr_total + previous.other_revenue),
+      amount: receita_bruta,
+      amount_previous: receita_bruta_prev,
+      variation_percent: percentageChange(receita_bruta, receita_bruta_prev),
       is_total: true,
       level: 0,
     });
     lines.push({
-      label: 'GGR (Receita de Apostas)',
-      amount: data.ggr_total,
-      amount_previous: previous.ggr_total,
-      variation_percent: percentageChange(data.ggr_total, previous.ggr_total),
+      label: 'Apostas Recebidas (Turnover)',
+      amount: data.total_bets,
+      amount_previous: previous.total_bets,
+      variation_percent: percentageChange(data.total_bets, previous.total_bets),
       level: 1,
     });
     if (data.other_revenue > 0n || previous.other_revenue > 0n) {
@@ -122,7 +144,7 @@ export class DreService {
     });
     if (data.tax_lei14790 > 0n || previous.tax_lei14790 > 0n) {
       lines.push({
-        label: 'Imposto Lei 14.790 (12%)',
+        label: 'Imposto Lei 14.790 (13%)',
         amount: data.tax_lei14790,
         amount_previous: previous.tax_lei14790,
         variation_percent: percentageChange(data.tax_lei14790, previous.tax_lei14790),
@@ -150,10 +172,18 @@ export class DreService {
         level: 1,
       });
     }
+    if (data.iss > 0n || previous.iss > 0n) {
+      lines.push({
+        label: 'ISS sobre Serviços (5%)',
+        amount: data.iss,
+        amount_previous: previous.iss,
+        variation_percent: percentageChange(data.iss, previous.iss),
+        is_negative: true,
+        level: 1,
+      });
+    }
 
     // === RECEITA LÍQUIDA ===
-    const receita_bruta = data.ggr_total + data.other_revenue;
-    const receita_bruta_prev = previous.ggr_total + previous.other_revenue;
     const receita_liquida = receita_bruta - total_deductions;
     const receita_liquida_prev = receita_bruta_prev - total_deductions_prev;
     lines.push({
@@ -271,7 +301,7 @@ export class DreService {
       margem_bruta: percentage(lucro_bruto, receita_liquida),
       margem_operacional: percentage(ebt, receita_liquida),
       margem_liquida: percentage(lucro_liquido, receita_liquida),
-      payout_ratio: percentage(data.prizes_paid, data.ggr_total + data.prizes_paid),
+      payout_ratio: percentage(data.prizes_paid, data.total_bets),
 
       lucro_liquido_anterior: lucro_liquido_prev.toString(),
       variacao_lucro: percentageChange(lucro_liquido, lucro_liquido_prev),
@@ -299,15 +329,18 @@ export class DreService {
 
   /** Coleta todos os dados financeiros do período */
   private async collectPeriodData(baseWhere: any, start: Date, end: Date) {
-    // === GGR Total e Prêmios (de todos os GgrDailyRecord do período) ===
+    // === Apostas, Prêmios e GGR (de todos os GgrDailyRecord do período) ===
+    // Convenção contábil: receita bruta = APOSTAS RECEBIDAS (turnover);
+    // prêmios pagos = CMV; margem bruta = GGR (apostas − prêmios).
     const ggrRecords = await this.prisma.ggrDailyRecord.findMany({
       where: {
         ...baseWhere,
         date: { gte: start, lt: end },
       },
-      select: { ggr: true, total_prizes: true },
+      select: { total_bets: true, ggr: true, total_prizes: true },
     });
-    const ggr_total = ggrRecords.reduce((s, r) => s + r.ggr, 0n);
+    const total_bets = ggrRecords.reduce((s, r) => s + r.total_bets, 0n);
+    const ggr_total  = ggrRecords.reduce((s, r) => s + r.ggr, 0n);
     const prizes_paid = ggrRecords.reduce((s, r) => s + r.total_prizes, 0n);
 
     // === Outras receitas (Contas a Receber - regime de competência, por emissão) ===
@@ -321,21 +354,61 @@ export class DreService {
     });
     const other_revenue = receivables.reduce((s, r) => s + r.amount, 0n);
 
-    // === Impostos sobre receita (apurações GGR fechadas/pagas) ===
-    // Pega apurações cujo período coincide com o período da DRE
+    // === Impostos sobre receita (apurações fechadas/pagas no período) ===
+    //   Lei 14.790 → GgrMonthlyApuration
+    //   PIS/COFINS → PisCofinsApuration (modelo dedicado)
+    //   ISS        → IssApuration
     const ggrApurations = await this.findGgrApurationsInPeriod(baseWhere.company_id, baseWhere.brand_id, start, end);
     const tax_lei14790 = ggrApurations.reduce((s, a) => s + a.tax_lei14790_amount, 0n);
-    const pis_revenue = ggrApurations.reduce((s, a) => s + a.pis_amount_payable, 0n);
-    const cofins_revenue = ggrApurations.reduce((s, a) => s + a.cofins_amount_payable, 0n);
-    const iss = 0n; // ISS só viria de NFSe emitidas (módulo fiscal); por enquanto 0
+
+    const startYear = start.getUTCFullYear();
+    const startMonth = start.getUTCMonth() + 1;
+    const endDate = new Date(end.getTime() - 1);
+    const endYear = endDate.getUTCFullYear();
+    const endMonth = endDate.getUTCMonth() + 1;
+    const yearMonths: { year: number; month: number }[] = [];
+    let yy = startYear, mm = startMonth;
+    while (yy < endYear || (yy === endYear && mm <= endMonth)) {
+      yearMonths.push({ year: yy, month: mm });
+      mm++; if (mm > 12) { mm = 1; yy++; }
+    }
+
+    let pis_revenue = 0n, cofins_revenue = 0n, iss = 0n;
+    if (yearMonths.length > 0) {
+      const [pisCofinsList, issList] = await Promise.all([
+        this.prisma.pisCofinsApuration.findMany({
+          where: {
+            company_id: baseWhere.company_id, metadeleted: false,
+            status: { in: ['CLOSED', 'PAID'] },
+            OR: yearMonths.map(ym => ({ year: ym.year, month: ym.month })),
+          },
+          select: { pis_amount_payable: true, cofins_amount_payable: true },
+        }),
+        this.prisma.issApuration.findMany({
+          where: {
+            company_id: baseWhere.company_id, metadeleted: false,
+            status: { in: ['CLOSED', 'PAID'] },
+            OR: yearMonths.map(ym => ({ year: ym.year, month: ym.month })),
+          },
+          select: { iss_amount: true },
+        }),
+      ]);
+      pis_revenue    = pisCofinsList.reduce((s, a) => s + a.pis_amount_payable, 0n);
+      cofins_revenue = pisCofinsList.reduce((s, a) => s + a.cofins_amount_payable, 0n);
+      iss            = issList.reduce((s, a) => s + a.iss_amount, 0n);
+    }
 
     // === Despesas (Contas a Pagar - regime de competência, por emissão) ===
     // Agrupadas por Natureza Contábil (DRE); fallback para categoria visual / "Sem natureza".
+    // IMPORTANTE: filtramos source != TAX_APURATION porque os DARFs gerados
+    // pelas apurações já entram nas linhas de "Deduções da Receita" (Lei 14.790,
+    // PIS, COFINS, ISS) e "IRPJ + CSLL" — somá-los aqui causaria dupla contagem.
     const payables = await this.prisma.accountPayable.findMany({
       where: {
         ...baseWhere,
         status: { not: PaymentStatus.CANCELLED },
         duplicate_of_id: null,
+        source: { not: 'TAX_APURATION' },
         issue_date: { gte: start, lt: end },
       },
       select: {
@@ -347,22 +420,47 @@ export class DreService {
     const total_expenses = payables.reduce((s, p) => s + p.amount, 0n);
     const expenses_by_category = this.groupExpensesByCategory(payables);
 
-    // === IRPJ/CSLL (apurações trimestrais fechadas no período) ===
+    // === IRPJ/CSLL (apurações trimestrais OU mensais — rateadas pelos meses do período) ===
+    //
+    // IRPJ trimestral fecha apenas no fim do trimestre (closed_at em abril, julho,
+    // outubro, janeiro). Se o usuário pede DRE de fevereiro, antes não aparecia
+    // nada porque nenhum closed_at cai em fevereiro.
+    //
+    // Solução: identificar apurações cujo período (ano+trimestre/mês) tem sobreposição
+    // com o período da DRE, e ratear o total de tributos pela fração de meses
+    // do trimestre que cai dentro do período da DRE.
+    //   Ex.: DRE de fev/2026 + apuração 1T/2026 → 1 mês de 3 → rateio 1/3
+    //        DRE de 2026 (anual) + apuração 1T/2026 → 3 meses de 3 → 100%
+    const periodMonthSet = this.monthsInPeriod(start, end); // Set de "YYYY-MM" no período
     const irpjApurations = await this.prisma.irpjCsllApuration.findMany({
       where: {
         company_id: baseWhere.company_id,
         metadeleted: false,
-        OR: [
-          { closed_at: { gte: start, lt: end } },
-          { paid_at: { gte: start, lt: end } },
-        ],
         status: { in: [IrpjApurationStatus.CLOSED, IrpjApurationStatus.PAID] },
       },
-      select: { total_taxes: true },
+      select: { total_taxes: true, period_type: true, year: true, quarter: true, month: true },
     });
-    const irpj_csll = irpjApurations.reduce((s, a) => s + a.total_taxes, 0n);
+    let irpj_csll = 0n;
+    for (const a of irpjApurations) {
+      // Lista os meses cobertos pela apuração
+      const apurationMonths: string[] = [];
+      if (a.period_type === 'TRIMESTRAL' && a.quarter) {
+        for (let i = 0; i < 3; i++) {
+          const m = (a.quarter - 1) * 3 + i + 1;
+          apurationMonths.push(`${a.year}-${String(m).padStart(2, '0')}`);
+        }
+      } else if (a.month) {
+        apurationMonths.push(`${a.year}-${String(a.month).padStart(2, '0')}`);
+      }
+      const overlap = apurationMonths.filter(m => periodMonthSet.has(m)).length;
+      if (overlap === 0) continue;
+      const totalMonths = apurationMonths.length;
+      // Rateio proporcional ao número de meses que estão no período
+      irpj_csll += (a.total_taxes * BigInt(overlap)) / BigInt(totalMonths);
+    }
 
     return {
+      total_bets,
       ggr_total,
       prizes_paid,
       other_revenue,
@@ -377,6 +475,22 @@ export class DreService {
   }
 
   /** Busca apurações GGR cujo período se sobrepõe ao período da DRE */
+  /** Retorna um Set de "YYYY-MM" representando todos os meses que tocam o período. */
+  private monthsInPeriod(start: Date, end: Date): Set<string> {
+    const months = new Set<string>();
+    const startYear = start.getUTCFullYear();
+    const startMonth = start.getUTCMonth() + 1;
+    const endDate = new Date(end.getTime() - 1);
+    const endYear = endDate.getUTCFullYear();
+    const endMonth = endDate.getUTCMonth() + 1;
+    let y = startYear, m = startMonth;
+    while (y < endYear || (y === endYear && m <= endMonth)) {
+      months.add(`${y}-${String(m).padStart(2, '0')}`);
+      m++; if (m > 12) { m = 1; y++; }
+    }
+    return months;
+  }
+
   private async findGgrApurationsInPeriod(companyId: string, brandId: string | undefined, start: Date, end: Date) {
     // Determina range de meses cobertos pelo período
     const startYear = start.getUTCFullYear();
@@ -470,29 +584,30 @@ export class DreService {
       const baseWhere: any = { company_id: companyId, metadeleted: false };
       if (brandId) baseWhere.brand_id = brandId;
 
-      // Receita = GGR + recebíveis (regime de competência, por emissão)
+      // Receita = apostas (turnover) + recebíveis (regime de competência, por emissão).
+      // Despesas excluem DARFs (TAX_APURATION) — eles entram como deduções da receita.
       const [ggrSum, recvSum, paySum] = await Promise.all([
         this.prisma.ggrDailyRecord.aggregate({
           where: { ...baseWhere, date: { gte: monthStart, lt: monthEnd } },
-          _sum: { ggr: true, total_prizes: true },
+          _sum: { total_bets: true, total_prizes: true },
         }),
         this.prisma.accountReceivable.aggregate({
           where: { ...baseWhere, status: { not: PaymentStatus.CANCELLED }, issue_date: { gte: monthStart, lt: monthEnd } },
           _sum: { amount: true },
         }),
         this.prisma.accountPayable.aggregate({
-          where: { ...baseWhere, status: { not: PaymentStatus.CANCELLED }, duplicate_of_id: null, issue_date: { gte: monthStart, lt: monthEnd } },
+          where: { ...baseWhere, status: { not: PaymentStatus.CANCELLED }, duplicate_of_id: null, source: { not: 'TAX_APURATION' }, issue_date: { gte: monthStart, lt: monthEnd } },
           _sum: { amount: true },
         }),
       ]);
 
-      const ggr = ggrSum._sum.ggr ?? 0n;
+      const bets = ggrSum._sum.total_bets ?? 0n;
       const prizes = ggrSum._sum.total_prizes ?? 0n;
       const recv = recvSum._sum.amount ?? 0n;
       const pay = paySum._sum.amount ?? 0n;
 
-      const revenue = ggr + recv;
-      // Lucro simplificado: Receita - Custos (prêmios) - Despesas
+      const revenue = bets + recv;
+      // Lucro simplificado: Receita Bruta − Prêmios (CMV) − Despesas Operacionais
       const profit = revenue - prizes - pay;
 
       series.push({
