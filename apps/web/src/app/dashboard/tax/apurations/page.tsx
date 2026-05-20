@@ -209,6 +209,7 @@ export default function TaxApurationsPage() {
     if (filters.year) params.year = filters.year;
     if (filters.month) params.month = filters.month;
     if (filters.status) params.status = filters.status;
+    if (filters.company_id) params.company_id = filters.company_id;
     const res = await api.get('/tax/apurations', { params });
     setItems(res.data.data);
   };
@@ -251,6 +252,10 @@ export default function TaxApurationsPage() {
 
       <FilterBar
         filters={[
+          ...(user?.profile === 'ADMIN' ? [{
+            key: 'company_id', label: 'Empresa', type: 'select' as const,
+            options: companies.map(c => ({ value: c.id, label: c.name })),
+          }] : []),
           { key: 'tax_type', label: 'Imposto', type: 'select', options: [
             { value: 'IRPJ_CSLL', label: 'IRPJ + CSLL' },
             { value: 'PIS_COFINS', label: 'PIS + COFINS' },
