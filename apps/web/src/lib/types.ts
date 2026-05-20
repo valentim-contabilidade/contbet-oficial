@@ -1,9 +1,16 @@
 export type Profile = 'ADMIN' | 'MANAGER' | 'OWNER';
 
+/**
+ * Labels visíveis dos perfis. Mapeamento da terminologia interna para a
+ * terminologia do negócio:
+ *   ADMIN   → Administrador (master ContBet, contador)
+ *   MANAGER → Gestor        (CEO/financeiro chefe da empresa cliente)
+ *   OWNER   → Operador      (gerente financeiro de marca específica)
+ */
 export const PROFILE_LABELS: Record<Profile, string> = {
-  ADMIN: 'ADMIN',
-  MANAGER: 'MASTER',
-  OWNER: 'GESTOR',
+  ADMIN: 'ADMINISTRADOR',
+  MANAGER: 'GESTOR',
+  OWNER: 'OPERADOR',
 };
 
 export const profileLabel = (p: string) => PROFILE_LABELS[p as Profile] ?? p;
@@ -18,6 +25,8 @@ export interface User {
   status: Status;
   company_id: string | null;
   brand_id: string | null;
+  /** Marcas atribuídas (N:N). Vazio em ADMIN/MANAGER. */
+  brand_ids?: string[];
   created_at: string;
   updated_at: string;
   metadeleted: boolean;
@@ -31,6 +40,8 @@ export interface Company {
   city: string;
   state: string;
   logo: string | null;
+  tax_regime?: 'LUCRO_REAL' | 'LUCRO_PRESUMIDO' | 'SIMPLES_NACIONAL';
+  is_office_account?: boolean;
   created_at: string;
   updated_at: string;
   metadeleted: boolean;
@@ -85,6 +96,8 @@ export interface FinancialCategory {
   description: string | null;
   is_active: boolean;
   company_id: string;
+  default_nature_id?: string | null;
+  default_nature?: { id: string; name: string; dre_section: string; type: string } | null;
   created_at: string;
   updated_at: string;
 }
@@ -130,6 +143,14 @@ export interface AccountPayable {
   status: PaymentStatus;
   notes: string | null;
   is_recurring: boolean;
+  is_deductible_expense?: boolean;
+  generates_pis_cofins_credit?: boolean;
+  // Retenções federais (CSRF) — serviços tomados de PJ
+  is_service_from_pj?: boolean;
+  irrf_retained?: string;
+  csll_retained?: string;
+  pis_retained?: string;
+  cofins_retained?: string;
   company_id: string;
   brand_id: string | null;
   contact_id: string | null;

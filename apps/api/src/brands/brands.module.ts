@@ -49,7 +49,13 @@ export class BrandsService {
     if (filters.company_id) where.company_id = filters.company_id;
 
     if (current.profile === Profile.MANAGER) where.company_id = current.company_id;
-    if (current.profile === Profile.OWNER) where.id = current.brand_id;
+    if (current.profile === Profile.OWNER) {
+      // OWNER: usa lista N:N (brand_ids do JWT) ou cai pro brand_id legado
+      const brandIds = (current.brand_ids && current.brand_ids.length > 0)
+        ? current.brand_ids
+        : (current.brand_id ? [current.brand_id] : []);
+      where.id = brandIds.length === 0 ? '__none__' : { in: brandIds };
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.brand.findMany({

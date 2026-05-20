@@ -1,6 +1,6 @@
 import { Module, Injectable, NotFoundException, BadRequestException, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { IsString, IsOptional, MinLength, MaxLength, Matches, Length, IsEnum } from 'class-validator';
+import { IsString, IsOptional, MinLength, MaxLength, Matches, Length, IsEnum, IsBoolean } from 'class-validator';
 import { Profile, TaxRegime } from '@prisma/client';
 import { pisCofinsDefaultsForRegime } from '../tax/regime-defaults';
 import { PrismaService } from '../prisma/prisma.service';
@@ -31,6 +31,9 @@ class CreateCompanyDto {
 
   @IsOptional() @IsEnum(TaxRegime)
   tax_regime?: TaxRegime;
+
+  @IsOptional() @IsBoolean()
+  is_office_account?: boolean;
 }
 
 class UpdateCompanyDto {
@@ -51,6 +54,9 @@ class UpdateCompanyDto {
 
   @IsOptional() @IsEnum(TaxRegime)
   tax_regime?: TaxRegime;
+
+  @IsOptional() @IsBoolean()
+  is_office_account?: boolean;
 }
 
 // ---------- Service ----------
@@ -71,6 +77,16 @@ export class CompaniesService {
     const exists = await this.prisma.company.findUnique({ where: { cnpj } });
     if (exists) throw new BadRequestException('CNPJ já cadastrado.');
 
+    // Garantir que existe no máximo 1 conta de escritório.
+    if (dto.is_office_account) {
+      const existingOffice = await this.prisma.company.findFirst({
+        where: { is_office_account: true, metadeleted: false },
+      });
+      if (existingOffice) {
+        throw new BadRequestException(`Já existe uma conta de escritório cadastrada (${existingOffice.name}). Apenas uma é permitida.`);
+      }
+    }
+
     const company = await this.prisma.company.create({
       data: { ...dto, cnpj, state: dto.state.toUpperCase() },
     });
@@ -78,14 +94,20 @@ export class CompaniesService {
     return company;
   }
 
-  async findAll(filters: { name?: string; cnpj?: string; state?: string; page?: number }) {
+  async findAll(filters: { name?: string; cnpj?: string; state?: string; page?: number; include_office?: string | boolean; include_template?: string | boolean }) {
     const page = Math.max(1, filters.page ?? 1);
-    const where = {
+    // Por padrão a listagem exclui a conta de escritório E a empresa-modelo.
+    // Quando precisar incluir, passa include_office=true ou include_template=true.
+    const includeOffice = filters.include_office === true || filters.include_office === 'true';
+    const includeTemplate = filters.include_template === true || filters.include_template === 'true';
+    const where: any = {
       metadeleted: false,
       ...(filters.name && { name: { contains: filters.name, mode: 'insensitive' as const } }),
       ...(filters.cnpj && { cnpj: { contains: filters.cnpj.replace(/\D/g, '') } }),
       ...(filters.state && { state: filters.state.toUpperCase() }),
     };
+    if (!includeOffice) where.is_office_account = false;
+    if (!includeTemplate) where.is_template = false;
     const [data, total] = await Promise.all([
       this.prisma.company.findMany({
         where,

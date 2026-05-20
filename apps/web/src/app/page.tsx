@@ -68,7 +68,7 @@ export default function LandingPage() {
                 {[
                   { label: 'GGR', val: 'R$ 2.4M', sub: '+12% mês' },
                   { label: 'Tributos', val: '12%', sub: 'sobre GGR' },
-                  { label: 'IRRF', val: '15%', sub: 'sobre prêmios' },
+                  { label: 'PIS/COFINS', val: '3,65%', sub: 'cumulativo' },
                   { label: 'Compliance', val: '100%', sub: 'em dia' },
                 ].map((m, i) => (
                   <div key={i} className="border-b border-r border-white/10 p-4 flex flex-col justify-between">

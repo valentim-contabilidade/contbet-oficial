@@ -24,6 +24,11 @@ import { FiscalModule } from './fiscal/fiscal.module';
 import { ReportsModule } from './reports/reports.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { BankIntegrationsModule } from './bank-integrations/bank-integrations.module';
+import { AuditChecksModule } from './audit-checks/audit-checks.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { DataSourcesModule } from './data-sources/data-sources.module';
+import { SerproModule } from './serpro/serpro.module';
+import { WebhooksModule } from './webhooks/focus-nfe.webhook';
 
 @Module({
   imports: [
@@ -51,6 +56,11 @@ import { BankIntegrationsModule } from './bank-integrations/bank-integrations.mo
     ReportsModule,
     AccountingModule,
     BankIntegrationsModule,
+    AuditChecksModule,
+    DashboardModule,
+    DataSourcesModule,
+    SerproModule,
+    WebhooksModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

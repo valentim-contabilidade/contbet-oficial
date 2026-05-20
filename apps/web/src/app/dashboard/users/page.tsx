@@ -14,7 +14,9 @@ function UserForm({ initial, onSubmit, onCancel, current }: { initial?: Partial<
     name: initial?.name ?? '', username: initial?.username ?? '', email: initial?.email ?? '',
     password: '', profile: (initial?.profile ?? 'OWNER') as Profile,
     company_id: initial?.company_id ?? (current.profile === 'MANAGER' ? current.company_id ?? '' : ''),
-    brand_id: initial?.brand_id ?? '', status: initial?.status ?? 'ACTIVE',
+    brand_id: initial?.brand_id ?? '',
+    brand_ids: (initial as any)?.brand_ids ?? (initial?.brand_id ? [initial.brand_id] : []) as string[],
+    status: initial?.status ?? 'ACTIVE',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -46,7 +48,7 @@ function UserForm({ initial, onSubmit, onCancel, current }: { initial?: Partial<
     if (!isEdit && data.password.length < 6) errs.password = 'Senha mínima de 6 caracteres';
     if (!data.profile) errs.profile = 'Perfil obrigatório';
     if (data.profile !== 'ADMIN' && !data.company_id) errs.company_id = 'Empresa obrigatória';
-    if (data.profile === 'OWNER' && !data.brand_id) errs.brand_id = 'Marca obrigatória';
+    if (data.profile === 'OWNER' && data.brand_ids.length === 0) errs.brand_ids = 'Selecione ao menos uma marca';
     setErrors(errs);
     if (Object.keys(errs).length === 0) {
       setSubmitting(true);
@@ -54,8 +56,10 @@ function UserForm({ initial, onSubmit, onCancel, current }: { initial?: Partial<
         const payload: any = {
           name: data.name, email: data.email, profile: data.profile, status: data.status,
           company_id: data.profile === 'ADMIN' ? null : data.company_id,
-          brand_id: data.profile === 'OWNER' ? data.brand_id : null,
         };
+        if (data.profile === 'OWNER') {
+          payload.brand_ids = data.brand_ids;
+        }
         if (!isEdit) { payload.username = data.username; payload.password = data.password; }
         await onSubmit(payload);
       } catch (err: any) { setErrors({ form: err.response?.data?.message ?? 'Erro ao salvar.' }); }
@@ -81,7 +85,7 @@ function UserForm({ initial, onSubmit, onCancel, current }: { initial?: Partial<
       )}
       <div className="grid grid-cols-2 gap-4">
         <Field label="Perfil" required error={errors.profile}>
-          <Select value={data.profile} onChange={e => setData({ ...data, profile: e.target.value as Profile, company_id: e.target.value === 'ADMIN' ? '' : data.company_id, brand_id: e.target.value !== 'OWNER' ? '' : data.brand_id })}>
+          <Select value={data.profile} onChange={e => setData({ ...data, profile: e.target.value as Profile, company_id: e.target.value === 'ADMIN' ? '' : data.company_id, brand_id: e.target.value !== 'OWNER' ? '' : data.brand_id, brand_ids: e.target.value !== 'OWNER' ? [] : data.brand_ids })}>
             {allowedProfiles.map(p => <option key={p} value={p}>{profileLabel(p)}</option>)}
           </Select>
         </Field>
@@ -93,19 +97,38 @@ function UserForm({ initial, onSubmit, onCancel, current }: { initial?: Partial<
       </div>
       {data.profile !== 'ADMIN' && (
         <Field label="Empresa vinculada" required error={errors.company_id}>
-          <Select value={data.company_id ?? ''} onChange={e => setData({ ...data, company_id: e.target.value, brand_id: '' })} disabled={current.profile === 'MANAGER'}>
+          <Select value={data.company_id ?? ''} onChange={e => setData({ ...data, company_id: e.target.value, brand_id: '', brand_ids: [] })} disabled={current.profile === 'MANAGER'}>
             <option value="">Selecione...</option>
             {companies.filter(c => current.profile !== 'MANAGER' || c.id === current.company_id).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </Select>
         </Field>
       )}
       {data.profile === 'OWNER' && data.company_id && (
-        <Field label="Marca vinculada" required error={errors.brand_id}>
-          <Select value={data.brand_id ?? ''} onChange={e => setData({ ...data, brand_id: e.target.value })}>
-            <option value="">Selecione...</option>
-            {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </Select>
-          {brands.length === 0 && <div className="text-xs text-stone-500 mt-1">Esta empresa não tem marcas cadastradas.</div>}
+        <Field label="Marcas atribuídas" required error={errors.brand_ids}>
+          <div className="space-y-1.5 bg-stone-50 border border-stone-200 rounded-sm p-3 max-h-60 overflow-y-auto">
+            {brands.length === 0 && (
+              <div className="text-xs text-stone-500">Esta empresa não tem marcas cadastradas.</div>
+            )}
+            {brands.map(b => {
+              const checked = data.brand_ids.includes(b.id);
+              return (
+                <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-white px-2 py-1 rounded-sm">
+                  <input type="checkbox" checked={checked}
+                    onChange={(e) => {
+                      const next = e.target.checked
+                        ? [...data.brand_ids, b.id]
+                        : data.brand_ids.filter((id: string) => id !== b.id);
+                      setData({ ...data, brand_ids: next });
+                    }}
+                  />
+                  <span>{b.name}</span>
+                </label>
+              );
+            })}
+          </div>
+          <div className="text-xs text-stone-500 mt-1">
+            O gestor poderá reivindicar e ver notas de {data.brand_ids.length === 0 ? 'nenhuma' : data.brand_ids.length === 1 ? '1 marca' : `${data.brand_ids.length} marcas`}.
+          </div>
         </Field>
       )}
       {errors.form && <div className="text-sm text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-sm">{errors.form}</div>}
@@ -158,7 +181,7 @@ export default function UsersPage() {
           { key: 'name', label: 'Nome' },
           { key: 'username', label: 'Username' },
           { key: 'profile', label: 'Perfil', type: 'select', options: [
-            { value: 'ADMIN', label: 'ADMIN' }, { value: 'MANAGER', label: 'MASTER' }, { value: 'OWNER', label: 'GESTOR' },
+            { value: 'ADMIN', label: 'ADMINISTRADOR' }, { value: 'MANAGER', label: 'GESTOR' }, { value: 'OWNER', label: 'OPERADOR' },
           ]},
         ]}
         values={filters} onChange={setFilters}

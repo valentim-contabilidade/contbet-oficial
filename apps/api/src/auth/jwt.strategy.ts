@@ -15,15 +15,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      include: { brand_assignments: { select: { brand_id: true } } },
+    });
     if (!user || user.metadeleted || user.status !== 'ACTIVE') {
       throw new UnauthorizedException();
     }
+    const brandIds = user.brand_assignments.map((a) => a.brand_id);
     return {
       id: user.id,
       profile: user.profile,
       company_id: user.company_id,
       brand_id: user.brand_id,
+      // Marcas via N:N. Se vazio e brand_id setado, será usado como fallback.
+      brand_ids: brandIds,
     };
   }
 }
