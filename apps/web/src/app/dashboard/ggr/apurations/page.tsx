@@ -28,9 +28,11 @@ const apurationStatusIcons: Record<string, any> = {
   PAID: CheckCircle2,
 };
 
-function GenerateApurationModal({ brands, companies, current, onConfirm, onCancel }: {
+function GenerateApurationModal({ brands, companies, current, onConfirm, onCancel, onConfirmAll }: {
   brands: Brand[]; companies: Company[]; current: any;
-  onConfirm: (data: any) => Promise<void>; onCancel: () => void;
+  onConfirm: (data: any) => Promise<void>;
+  onCancel: () => void;
+  onConfirmAll: (data: any) => Promise<any>;
 }) {
   const today = new Date();
   const [data, setData] = useState({
@@ -38,18 +40,98 @@ function GenerateApurationModal({ brands, companies, current, onConfirm, onCance
     brand_id: '',
     year: today.getFullYear(),
     month: today.getMonth() + 1,
+    all_brands: false,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [bulkResult, setBulkResult] = useState<any>(null);
   const visibleCompanies = current.profile === 'MANAGER' ? companies.filter(c => c.id === current.company_id) : companies;
   const visibleBrands = data.company_id ? brands.filter(b => b.company_id === data.company_id) : [];
 
   const submit = async () => {
+    if (data.all_brands) {
+      if (!data.company_id) return;
+      setSubmitting(true);
+      try {
+        const res = await onConfirmAll(data);
+        setBulkResult(res);
+      } finally { setSubmitting(false); }
+      return;
+    }
     if (!data.brand_id) return;
     setSubmitting(true);
     try {
       await onConfirm(data);
     } finally { setSubmitting(false); }
   };
+
+  if (bulkResult) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-green-50 border border-green-200 rounded-sm p-4">
+          <div className="font-medium text-green-900 mb-1">Cálculo concluído</div>
+          <div className="text-sm text-green-800">
+            {bulkResult.brands_ok} de {bulkResult.brands_total} marcas processadas.
+            {bulkResult.brands_failed > 0 && (
+              <span className="text-amber-800"> {bulkResult.brands_failed} com erro.</span>
+            )}
+          </div>
+        </div>
+        <div className="bg-stone-50 border border-stone-200 rounded-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-stone-100 border-b border-stone-200">
+              <tr>
+                <th className="text-left px-3 py-2 text-xs uppercase tracking-wider text-stone-600">Marca</th>
+                <th className="text-right px-3 py-2 text-xs uppercase tracking-wider text-amber-700">GGR</th>
+                <th className="text-right px-3 py-2 text-xs uppercase tracking-wider text-red-700">Impostos</th>
+                <th className="text-center px-3 py-2 text-xs uppercase tracking-wider text-stone-600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bulkResult.results.map((r: any) => (
+                <tr key={r.brand_id} className="border-b border-stone-100">
+                  <td className="px-3 py-2 font-medium">{r.brand_name}</td>
+                  {r.ok ? (
+                    <>
+                      <td className={`px-3 py-2 text-right font-mono ${Number(r.ggr) >= 0 ? 'text-amber-800' : 'text-red-700'}`}>
+                        {(Number(r.ggr) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono text-red-800">
+                        {(Number(r.total_taxes) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </td>
+                      <td className="px-3 py-2 text-center text-xs text-green-700">✓ OK</td>
+                    </>
+                  ) : (
+                    <td colSpan={3} className="px-3 py-2 text-xs text-red-700">⚠ {r.error}</td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-stone-100 border-t-2 border-stone-300">
+              <tr>
+                <td className="px-3 py-2 font-bold uppercase text-xs">Total</td>
+                <td className="px-3 py-2 text-right font-mono font-bold text-amber-900">
+                  {(Number(bulkResult.total_ggr) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </td>
+                <td className="px-3 py-2 text-right font-mono font-bold text-red-900">
+                  {(Number(bulkResult.total_taxes) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <SecondaryButton type="button" onClick={() => { setBulkResult(null); setData({ ...data, all_brands: false, brand_id: '' }); }}>
+            Calcular outro período
+          </SecondaryButton>
+          <PrimaryButton type="button"
+            onClick={() => window.location.href = `/dashboard/ggr/report`}>
+            Abrir relatório consolidado
+          </PrimaryButton>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -60,12 +142,28 @@ function GenerateApurationModal({ brands, companies, current, onConfirm, onCance
           {visibleCompanies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </Select>
       </Field>
-      <Field label="Marca" required>
-        <Select value={data.brand_id} onChange={e => setData({ ...data, brand_id: e.target.value })} disabled={!data.company_id}>
-          <option value="">{data.company_id ? 'Selecione...' : 'Selecione a empresa primeiro'}</option>
-          {visibleBrands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-        </Select>
-      </Field>
+
+      <label className="flex items-start gap-3 p-3 border border-stone-200 rounded-sm cursor-pointer hover:bg-stone-50 has-[:checked]:bg-blue-50 has-[:checked]:border-blue-300">
+        <input type="checkbox" checked={data.all_brands}
+          onChange={e => setData({ ...data, all_brands: e.target.checked, brand_id: '' })}
+          className="mt-1" />
+        <div>
+          <div className="text-sm font-medium">Calcular todas as marcas da empresa</div>
+          <div className="text-xs text-stone-600">
+            Processa em lote: cada marca com GGR diário cadastrado vai ter sua apuração mensal calculada/recalculada.
+          </div>
+        </div>
+      </label>
+
+      {!data.all_brands && (
+        <Field label="Marca" required>
+          <Select value={data.brand_id} onChange={e => setData({ ...data, brand_id: e.target.value })} disabled={!data.company_id}>
+            <option value="">{data.company_id ? 'Selecione...' : 'Selecione a empresa primeiro'}</option>
+            {visibleBrands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+          </Select>
+        </Field>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <Field label="Mês" required>
           <Select value={String(data.month)} onChange={e => setData({ ...data, month: parseInt(e.target.value) })}>
@@ -77,13 +175,20 @@ function GenerateApurationModal({ brands, companies, current, onConfirm, onCance
             className="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 text-sm focus:outline-none focus:border-ink rounded-sm" />
         </Field>
       </div>
+
       <div className="bg-blue-50 border border-blue-200 px-4 py-3 rounded-sm text-xs text-blue-800">
-        💡 Esta ação calcula automaticamente o GGR e os impostos para o período selecionado, com base nos registros diários já cadastrados.
+        💡 {data.all_brands
+          ? 'Todas as marcas da empresa serão processadas. Marcas sem dados ou com erro de configuração aparecem na lista de resultado.'
+          : 'Calcula GGR e impostos do período com base nos registros diários cadastrados.'}
       </div>
+
       <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
         <SecondaryButton type="button" onClick={onCancel}>Cancelar</SecondaryButton>
-        <PrimaryButton type="button" onClick={submit} disabled={submitting || !data.brand_id}>
-          {submitting ? 'Calculando...' : 'Ver apuração'}
+        <PrimaryButton type="button" onClick={submit}
+          disabled={submitting || !data.company_id || (!data.all_brands && !data.brand_id)}>
+          {submitting
+            ? 'Calculando…'
+            : data.all_brands ? 'Calcular todas as marcas' : 'Ver apuração'}
         </PrimaryButton>
       </div>
     </div>
@@ -116,6 +221,14 @@ export default function ApurationsListPage() {
     // Apenas navega para a tela de detalhe — ela vai calcular automaticamente
     setModalOpen(false);
     window.location.href = `/dashboard/ggr/monthly/${data.brand_id}/${data.year}/${data.month}`;
+  };
+
+  const handleGenerateAll = async (data: any) => {
+    // Calcula todas as marcas da empresa de uma vez. Retorna o resumo
+    // (o modal mostra o resultado inline; reload acontece quando o usuário fechar).
+    const res = await api.post(`/ggr/calculate-all/${data.company_id}/${data.year}/${data.month}`);
+    await reload();
+    return res.data;
   };
 
   const handleDelete = async () => {
@@ -234,8 +347,13 @@ export default function ApurationsListPage() {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Calcular apuração mensal" size="md">
-        <GenerateApurationModal brands={brands} companies={companies} current={user} onConfirm={handleGenerate} onCancel={() => setModalOpen(false)} />
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Calcular apuração mensal" size="lg">
+        <GenerateApurationModal
+          brands={brands} companies={companies} current={user}
+          onConfirm={handleGenerate}
+          onConfirmAll={handleGenerateAll}
+          onCancel={() => setModalOpen(false)}
+        />
       </Modal>
 
       <ConfirmDeleteModal

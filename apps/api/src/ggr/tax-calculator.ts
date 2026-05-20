@@ -2,9 +2,14 @@
  * Calculadora de impostos para casas de apostas brasileiras.
  *
  * Base legal:
- * - Lei 14.790/2023: 12% sobre receita líquida (GGR)
- * - Lei 14.790 art. 31: IRRF 15% sobre prêmios líquidos > faixa de isenção
+ * - Lei 14.790/2023: 13% sobre receita líquida (GGR) — alíquota vigente
  * - PIS/COFINS regime cumulativo: 0,65% + 3,00% sobre receita bruta
+ *
+ * IRRF: removido do cálculo. Pelo entendimento normativo atual (atualizações
+ * pós-Lei 14.790/2023), as casas de apostas NÃO estão obrigadas a reter
+ * IRRF de 15% sobre prêmios — apenas a INFORMAR os ganhos dos apostadores
+ * à Receita Federal. Os campos `irrf_*` da apuração permanecem no schema
+ * (legado) mas são sempre zerados.
  *
  * IMPORTANTE: estes cálculos refletem o entendimento normativo atual (2026).
  * O escritório contábil deve sempre validar conforme jurisprudência e
@@ -18,7 +23,7 @@ export interface TaxCalculation {
   ggr: bigint;
   net_revenue: bigint;
 
-  // Lei 14.790 - 12% sobre receita líquida
+  // Lei 14.790 - 13% sobre receita líquida
   tax_lei14790_rate: number;
   tax_lei14790_amount: bigint;
 
@@ -40,7 +45,7 @@ export interface TaxCalculation {
 }
 
 export interface TaxConfig {
-  tax_lei14790_rate?: number; // default 12.0
+  tax_lei14790_rate?: number; // default 13.0
   irrf_threshold_cents?: bigint; // default 282400 (R$ 2.824,00 - faixa de isenção do IRPF mensal 2026)
   irrf_rate?: number; // default 15.0
   pis_rate?: number; // default 0.65
@@ -57,7 +62,7 @@ export interface TaxConfig {
 }
 
 const DEFAULT_CONFIG: Required<TaxConfig> = {
-  tax_lei14790_rate: 12.0,
+  tax_lei14790_rate: 13.0,
   irrf_threshold_cents: BigInt(282400), // R$ 2.824,00
   irrf_rate: 15.0,
   pis_rate: 0.65,
@@ -82,16 +87,14 @@ export function calculateTaxes(
   const ggr = total_bets - total_prizes;
   const net_revenue = ggr; // No caso BR, líquido já é o próprio GGR no agregado mensal
   
-  // Lei 14.790: 12% sobre receita líquida (não pode ser negativo)
+  // Lei 14.790: 13% sobre receita líquida (não pode ser negativo)
   const baseLei14790 = ggr > 0n ? ggr : 0n;
   const tax_lei14790_amount = applyRate(baseLei14790, cfg.tax_lei14790_rate);
 
-  // IRRF 15% sobre prêmios > faixa
-  // Estimativa proporcional: assume que X% dos prêmios pagos foram acima da faixa
-  // (numa apuração precisa, seria prêmio a prêmio)
-  const estimated_taxable = applyRate(total_prizes, cfg.irrf_taxable_estimate_ratio * 100);
-  const irrf_taxable_base = estimated_taxable;
-  const irrf_amount = applyRate(irrf_taxable_base, cfg.irrf_rate);
+  // IRRF — desativado: a casa de apostas não retém IRRF dos prêmios.
+  // Apenas informa os ganhos dos apostadores à Receita Federal.
+  const irrf_taxable_base = 0n;
+  const irrf_amount = 0n;
 
   // PIS sobre receita bruta (apostas totais — interpretação conservadora)
   // ATENÇÃO: a base de cálculo do PIS/COFINS para casas de apostas ainda é
@@ -101,7 +104,7 @@ export function calculateTaxes(
   const pis_amount = applyRate(baseSocial, cfg.pis_rate);
   const cofins_amount = applyRate(baseSocial, cfg.cofins_rate);
 
-  const total_taxes = tax_lei14790_amount + irrf_amount + pis_amount + cofins_amount;
+  const total_taxes = tax_lei14790_amount + pis_amount + cofins_amount;
 
   return {
     total_bets,

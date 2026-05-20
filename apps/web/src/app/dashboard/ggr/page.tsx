@@ -131,7 +131,7 @@ export default function GgrDashboardPage() {
           <Calculator className="w-5 h-5 text-red-700 mb-4" strokeWidth={1.5} />
           <div className="text-xs uppercase tracking-wider text-red-800 mb-1">Impostos a pagar</div>
           <div className="font-display text-3xl text-red-900">{formatBRL(m?.taxes.total_taxes || 0)}</div>
-          <div className="text-xs text-red-700 mt-2">12% + IRRF + PIS + COFINS</div>
+          <div className="text-xs text-red-700 mt-2">Lei 14.790 + PIS + COFINS</div>
         </div>
       </div>
 
@@ -169,16 +169,11 @@ export default function GgrDashboardPage() {
             <h2 className="font-display text-xl">Impostos calculados sobre {monthNames[month - 1]}/{year}</h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid sm:grid-cols-3 gap-3">
             <div className="border border-blue-200 bg-blue-50/30 rounded-sm p-4">
-              <div className="text-xs uppercase tracking-wider text-blue-800 mb-1">Lei 14.790 (12%)</div>
+              <div className="text-xs uppercase tracking-wider text-blue-800 mb-1">Lei 14.790 (13%)</div>
               <div className="font-display text-xl text-blue-900">{formatBRL(m.taxes.tax_lei14790_amount)}</div>
               <div className="text-xs text-blue-700 mt-1">Sobre receita líquida</div>
-            </div>
-            <div className="border border-purple-200 bg-purple-50/30 rounded-sm p-4">
-              <div className="text-xs uppercase tracking-wider text-purple-800 mb-1">IRRF (15%)</div>
-              <div className="font-display text-xl text-purple-900">{formatBRL(m.taxes.irrf_amount)}</div>
-              <div className="text-xs text-purple-700 mt-1">Sobre prêmios tributáveis</div>
             </div>
             <div className="border border-amber-200 bg-amber-50/30 rounded-sm p-4">
               <div className="text-xs uppercase tracking-wider text-amber-800 mb-1">PIS (0,65%)</div>

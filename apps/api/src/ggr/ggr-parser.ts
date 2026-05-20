@@ -25,6 +25,8 @@ export interface ParsedGgrLine {
   total_prizes: bigint;
   total_deposits: bigint;
   total_withdrawals: bigint;
+  total_bonus?: bigint;
+  total_cashback?: bigint;
   bet_count?: number;
   prize_count?: number;
   deposit_count?: number;
@@ -57,6 +59,8 @@ const COLUMN_ALIASES: Record<string, string[]> = {
   total_prizes: ['premios', 'prizes', 'wins', 'payout', 'payouts', 'volume_premios', 'total_premios'],
   total_deposits: ['depositos', 'deposits', 'volume_depositos', 'total_depositos'],
   total_withdrawals: ['saques', 'withdrawals', 'cashouts', 'volume_saques', 'total_saques'],
+  total_bonus: ['bonus', 'gamificacao', 'gamification', 'bonus_total', 'total_bonus', 'freebet', 'freebets', 'freespin', 'volume_bonus'],
+  total_cashback: ['cashback', 'total_cashback', 'cash_back'],
   bet_count: ['quantidade_apostas', 'qtd_apostas', 'bets_count', 'num_apostas', 'numero_apostas'],
   prize_count: ['quantidade_premios', 'qtd_premios', 'prizes_count', 'num_premios'],
   deposit_count: ['quantidade_depositos', 'qtd_depositos', 'num_depositos'],
@@ -157,7 +161,14 @@ function parseCSVLine(line: string, delimiter: string): string[] {
 }
 
 export function parseGgrCSV(content: string): ParsedGgrFile {
-  const lines = content.split(/\r?\n/).filter(l => l.trim());
+  // Pula BOM (UTF-8), linhas vazias e linhas iniciadas por `#` (comentário/instruções)
+  const cleaned = content.replace(/^﻿/, '');
+  const lines = cleaned
+    .split(/\r?\n/)
+    .filter(l => {
+      const t = l.trim();
+      return t.length > 0 && !t.startsWith('#');
+    });
   if (lines.length < 2) {
     throw new Error('Arquivo CSV vazio ou sem linhas de dados.');
   }
@@ -181,6 +192,8 @@ export function parseGgrCSV(content: string): ParsedGgrFile {
   const idxDepositCount = findColumnIndex(headers, 'deposit_count');
   const idxWithdrawalCount = findColumnIndex(headers, 'withdrawal_count');
   const idxActivePlayers = findColumnIndex(headers, 'active_players');
+  const idxBonus = findColumnIndex(headers, 'total_bonus');
+  const idxCashback = findColumnIndex(headers, 'total_cashback');
 
   const result: ParsedGgrLine[] = [];
   const warnings: string[] = [];
@@ -203,6 +216,8 @@ export function parseGgrCSV(content: string): ParsedGgrFile {
       total_prizes,
       total_deposits,
       total_withdrawals,
+      total_bonus: idxBonus >= 0 ? parseMoney(cols[idxBonus]) : undefined,
+      total_cashback: idxCashback >= 0 ? parseMoney(cols[idxCashback]) : undefined,
       bet_count: idxBetCount >= 0 ? parseInteger(cols[idxBetCount]) : undefined,
       prize_count: idxPrizeCount >= 0 ? parseInteger(cols[idxPrizeCount]) : undefined,
       deposit_count: idxDepositCount >= 0 ? parseInteger(cols[idxDepositCount]) : undefined,
@@ -261,6 +276,8 @@ export function parseGgrXLSX(buffer: Buffer): ParsedGgrFile {
   const idxDepositCount = findColumnIndex(headers, 'deposit_count');
   const idxWithdrawalCount = findColumnIndex(headers, 'withdrawal_count');
   const idxActivePlayers = findColumnIndex(headers, 'active_players');
+  const idxBonus = findColumnIndex(headers, 'total_bonus');
+  const idxCashback = findColumnIndex(headers, 'total_cashback');
 
   const result: ParsedGgrLine[] = [];
   const warnings: string[] = [];
@@ -282,6 +299,8 @@ export function parseGgrXLSX(buffer: Buffer): ParsedGgrFile {
       total_prizes: parseMoney(row[prizesKey]),
       total_deposits: parseMoney(row[depKey]),
       total_withdrawals: parseMoney(row[wdKey]),
+      total_bonus: idxBonus >= 0 ? parseMoney(row[headers[idxBonus]]) : undefined,
+      total_cashback: idxCashback >= 0 ? parseMoney(row[headers[idxCashback]]) : undefined,
       bet_count: idxBetCount >= 0 ? parseInteger(row[headers[idxBetCount]]) : undefined,
       prize_count: idxPrizeCount >= 0 ? parseInteger(row[headers[idxPrizeCount]]) : undefined,
       deposit_count: idxDepositCount >= 0 ? parseInteger(row[headers[idxDepositCount]]) : undefined,
@@ -314,18 +333,144 @@ export function parseGgrFile(filename: string, content: Buffer | string): Parsed
 }
 
 /**
- * Gera um template CSV de exemplo (para download na UI).
+ * Gera um template CSV padrão para download.
+ *
+ * Espelha o template XLSX (mesmas colunas e mesmo número de linhas) para
+ * que o cliente possa escolher o formato sem perder informação. Linhas
+ * comentadas no topo com `#` são ignoradas pelo parser e servem de
+ * instrução rápida (Excel/Sheets/LibreOffice respeitam o `#` na primeira
+ * coluna como dado de texto, então abre normal).
+ *
+ * @param days quantidade de dias pré-preenchidos (default 31)
  */
-export function generateGgrTemplateCSV(): string {
+export function generateGgrTemplateCSV(opts: { days?: number } = {}): string {
+  const days = opts.days ?? 31;
   const today = new Date();
-  const lines = [
-    'data;apostas;premios;depositos;saques;quantidade_apostas;jogadores_ativos',
+
+  const lines: string[] = [
+    '# MODELO GGR — ContBet',
+    '# Preencha os valores em REAIS (ex: 1234,56 ou 1234.56). Não altere os nomes das colunas.',
+    '# Colunas obrigatórias: data, apostas, premios, depositos, saques.',
+    '# Colunas opcionais: bonus, quantidade_apostas, quantidade_premios, quantidade_depositos, quantidade_saques, jogadores_ativos.',
+    '# GGR = apostas - premios (calculado automaticamente).',
+    '',
+    'data;apostas;premios;depositos;saques;bonus;quantidade_apostas;quantidade_premios;quantidade_depositos;quantidade_saques;jogadores_ativos',
   ];
-  for (let i = 6; i >= 0; i--) {
+  for (let i = days - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().split('T')[0];
-    lines.push(`${dateStr};0,00;0,00;0,00;0,00;0;0`);
+    lines.push(`${dateStr};0,00;0,00;0,00;0,00;0,00;0;0;0;0;0`);
   }
   return lines.join('\n');
+}
+
+/**
+ * Gera um modelo .xlsx pronto para envio ao cliente.
+ *
+ * - Aba "Lançamentos" com cabeçalhos e linhas pré-populadas com a data
+ *   (`days` últimos dias contando até hoje, default 31 = um mês comercial).
+ * - Aba "Instruções" explicando cada coluna, formatos aceitos e exemplos.
+ * - Largura de coluna ajustada e cabeçalho destacado.
+ *
+ * @param days quantidade de dias pré-preenchidos (default 31)
+ * @param brandName opcional — usado no nome do arquivo e cabeçalho da aba
+ */
+export function generateGgrTemplateXLSX(opts: { days?: number; brandName?: string } = {}): { buffer: Buffer; filename: string } {
+  const XLSX = require('xlsx');
+  const days = opts.days ?? 31;
+  const today = new Date();
+
+  // -------- Aba 1: Lançamentos --------
+  const headers = [
+    'data',
+    'apostas',
+    'premios',
+    'depositos',
+    'saques',
+    'bonus',
+    'quantidade_apostas',
+    'quantidade_premios',
+    'quantidade_depositos',
+    'quantidade_saques',
+    'jogadores_ativos',
+  ];
+
+  const rows: any[] = [headers];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+    rows.push([dateStr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  }
+
+  const ws1 = XLSX.utils.aoa_to_sheet(rows);
+  // Larguras de coluna
+  ws1['!cols'] = [
+    { wch: 12 }, // data
+    { wch: 14 }, // apostas
+    { wch: 14 }, // premios
+    { wch: 14 }, // depositos
+    { wch: 14 }, // saques
+    { wch: 14 }, // bonus
+    { wch: 18 }, // qtd apostas
+    { wch: 18 }, // qtd premios
+    { wch: 20 }, // qtd depositos
+    { wch: 18 }, // qtd saques
+    { wch: 18 }, // jogadores_ativos
+  ];
+  // Congela a primeira linha (cabeçalho) para facilitar o scroll
+  ws1['!freeze'] = { xSplit: 0, ySplit: 1 };
+  // Marca colunas obrigatórias com cor no cabeçalho (negrito via prefixo só não dá; o xlsx free não suporta estilos sem o sheetjs-pro)
+  // Logo o destaque vai mesmo só na aba Instruções.
+
+  // -------- Aba 2: Instruções --------
+  const instr: any[][] = [
+    ['MODELO DE IMPORTAÇÃO GGR — ContBet'],
+    [opts.brandName ? `Marca: ${opts.brandName}` : ''],
+    [''],
+    ['INSTRUÇÕES DE PREENCHIMENTO'],
+    [''],
+    ['1) Preencha todas as linhas com os valores diários da sua operação.'],
+    ['2) Não altere os nomes das colunas — o sistema procura por essas chaves.'],
+    ['3) Pode adicionar mais linhas (uma por dia) ou remover dias que não operou.'],
+    ['4) Datas: aceita formatos AAAA-MM-DD (preferido) ou DD/MM/AAAA.'],
+    ['5) Valores monetários: pode usar 1234,56 ou 1234.56 — sem prefixo R$ é melhor.'],
+    ['6) Valores em REAIS (não em centavos). O sistema converte automaticamente.'],
+    [''],
+    ['COLUNAS — significado e obrigatoriedade'],
+    [''],
+    ['Coluna', 'Obrigatória', 'Descrição'],
+    ['data', 'SIM', 'Data do registro (AAAA-MM-DD ou DD/MM/AAAA)'],
+    ['apostas', 'SIM', 'Volume total apostado no dia (R$). Soma das stakes recebidas.'],
+    ['premios', 'SIM', 'Total pago em prêmios no dia (R$).'],
+    ['depositos', 'SIM', 'Total depositado pelos apostadores (R$).'],
+    ['saques', 'SIM', 'Total sacado pelos apostadores (R$).'],
+    ['bonus', 'NÃO', 'Bônus, cashback e freebets distribuídos (R$). Despesa de marketing.'],
+    ['quantidade_apostas', 'NÃO', 'Número de apostas (count, sem casa decimal).'],
+    ['quantidade_premios', 'NÃO', 'Número de prêmios pagos.'],
+    ['quantidade_depositos', 'NÃO', 'Número de operações de depósito.'],
+    ['quantidade_saques', 'NÃO', 'Número de operações de saque.'],
+    ['jogadores_ativos', 'NÃO', 'Jogadores únicos que apostaram no dia.'],
+    [''],
+    ['CÁLCULO DO GGR'],
+    ['GGR = apostas - premios'],
+    ['(O sistema calcula automaticamente.)'],
+    [''],
+    ['DÚVIDAS'],
+    ['Em caso de dúvidas, entre em contato com seu contador ou suporte ContBet.'],
+  ];
+
+  const ws2 = XLSX.utils.aoa_to_sheet(instr);
+  ws2['!cols'] = [{ wch: 24 }, { wch: 14 }, { wch: 80 }];
+
+  // Junta as abas no workbook
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws1, 'Lançamentos');
+  XLSX.utils.book_append_sheet(wb, ws2, 'Instruções');
+
+  const buffer: Buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  const safeName = (opts.brandName ?? 'modelo').replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 40);
+  const stamp = new Date().toISOString().split('T')[0];
+  return { buffer, filename: `ggr-${safeName}-${stamp}.xlsx` };
 }

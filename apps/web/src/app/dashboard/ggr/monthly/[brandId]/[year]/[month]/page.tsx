@@ -240,17 +240,6 @@ export default function MonthlyApurationDetailPage() {
             <div className="font-display text-xl text-blue-900 mb-1">{formatBRL(apuration.tax_lei14790_amount)}</div>
             <div className="text-xs text-blue-700">Base: receita líquida (GGR)</div>
           </div>
-          <div className="border border-purple-200 bg-purple-50/30 rounded-sm p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <div className="text-xs uppercase tracking-wider text-purple-800 font-medium">IRRF</div>
-                <div className="text-xs text-purple-700">Sobre prêmios</div>
-              </div>
-              <span className="text-xs bg-purple-200 text-purple-900 px-2 py-0.5 rounded-sm font-mono">{apuration.irrf_rate}%</span>
-            </div>
-            <div className="font-display text-xl text-purple-900 mb-1">{formatBRL(apuration.irrf_amount)}</div>
-            <div className="text-xs text-purple-700">Base: {formatBRL(apuration.irrf_taxable_base)}</div>
-          </div>
           <div className="border border-amber-200 bg-amber-50/30 rounded-sm p-4">
             <div className="flex justify-between items-start mb-3">
               <div>
@@ -344,7 +333,6 @@ export default function MonthlyApurationDetailPage() {
                 </ol>
                 <ul className="ml-6 mt-2 space-y-1 list-disc list-inside">
                   {Number(apuration.tax_lei14790_amount) > 0 && <li>Lei 14.790: <strong>{formatBRL(apuration.tax_lei14790_amount)}</strong></li>}
-                  {Number(apuration.irrf_amount) > 0 && <li>IRRF: <strong>{formatBRL(apuration.irrf_amount)}</strong></li>}
                   {Number(apuration.pis_amount) > 0 && <li>PIS: <strong>{formatBRL(apuration.pis_amount)}</strong></li>}
                   {Number(apuration.cofins_amount) > 0 && <li>COFINS: <strong>{formatBRL(apuration.cofins_amount)}</strong></li>}
                 </ul>

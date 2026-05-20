@@ -19,8 +19,11 @@ function EditDailyModal({ record, onSubmit, onCancel }: {
     total_prizes: Number(record.total_prizes ?? 0),
     total_deposits: Number(record.total_deposits ?? 0),
     total_withdrawals: Number(record.total_withdrawals ?? 0),
+    total_bonus: Number(record.total_bonus ?? 0),
     bet_count: record.bet_count ?? 0,
     prize_count: record.prize_count ?? 0,
+    deposit_count: record.deposit_count ?? 0,
+    withdrawal_count: record.withdrawal_count ?? 0,
     active_players: record.active_players ?? 0,
     notes: record.notes ?? '',
   });
@@ -43,17 +46,39 @@ function EditDailyModal({ record, onSubmit, onCancel }: {
         <div className="font-medium">{record.brand?.name}</div>
         <div className="text-xs text-stone-600">Data: {formatDate(record.date)}</div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Apostas (R$)"><CurrencyInput value={data.total_bets} onChange={v => setData({ ...data, total_bets: v })} /></Field>
-        <Field label="Prêmios (R$)"><CurrencyInput value={data.total_prizes} onChange={v => setData({ ...data, total_prizes: v })} /></Field>
-        <Field label="Depósitos (R$)"><CurrencyInput value={data.total_deposits} onChange={v => setData({ ...data, total_deposits: v })} /></Field>
-        <Field label="Saques (R$)"><CurrencyInput value={data.total_withdrawals} onChange={v => setData({ ...data, total_withdrawals: v })} /></Field>
+      <div className="bg-amber-50/50 border border-amber-200 rounded-sm p-3">
+        <div className="text-[11px] uppercase tracking-wider text-amber-900 font-medium mb-2">Apostas e prêmios</div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Apostas (R$)"><CurrencyInput value={data.total_bets} onChange={v => setData({ ...data, total_bets: v })} /></Field>
+          <Field label="Prêmios (R$)"><CurrencyInput value={data.total_prizes} onChange={v => setData({ ...data, total_prizes: v })} /></Field>
+          <Field label="Qtd. apostas"><Input type="number" min="0" value={data.bet_count} onChange={e => setData({ ...data, bet_count: parseInt(e.target.value) || 0 })} /></Field>
+          <Field label="Qtd. prêmios"><Input type="number" min="0" value={data.prize_count} onChange={e => setData({ ...data, prize_count: parseInt(e.target.value) || 0 })} /></Field>
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <Field label="Qtd. apostas"><Input type="number" value={data.bet_count} onChange={e => setData({ ...data, bet_count: parseInt(e.target.value) || 0 })} /></Field>
-        <Field label="Qtd. prêmios"><Input type="number" value={data.prize_count} onChange={e => setData({ ...data, prize_count: parseInt(e.target.value) || 0 })} /></Field>
-        <Field label="Jogadores ativos"><Input type="number" value={data.active_players} onChange={e => setData({ ...data, active_players: parseInt(e.target.value) || 0 })} /></Field>
+
+      <div className="bg-stone-50 border border-stone-200 rounded-sm p-3">
+        <div className="text-[11px] uppercase tracking-wider text-stone-700 font-medium mb-2">Movimentação de carteira (usado na auditoria de tarifas)</div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Depósitos (R$)"><CurrencyInput value={data.total_deposits} onChange={v => setData({ ...data, total_deposits: v })} /></Field>
+          <Field label="Saques (R$)"><CurrencyInput value={data.total_withdrawals} onChange={v => setData({ ...data, total_withdrawals: v })} /></Field>
+          <Field label="Qtd. depósitos"><Input type="number" min="0" value={data.deposit_count} onChange={e => setData({ ...data, deposit_count: parseInt(e.target.value) || 0 })} /></Field>
+          <Field label="Qtd. saques"><Input type="number" min="0" value={data.withdrawal_count} onChange={e => setData({ ...data, withdrawal_count: parseInt(e.target.value) || 0 })} /></Field>
+        </div>
       </div>
+
+      <div className="bg-purple-50/40 border border-purple-200 rounded-sm p-3">
+        <div className="text-[11px] uppercase tracking-wider text-purple-900 font-medium mb-2">Gamificação</div>
+        <Field label="Bônus distribuídos no dia (R$)">
+          <CurrencyInput value={data.total_bonus} onChange={v => setData({ ...data, total_bonus: v })} />
+        </Field>
+        <p className="text-[10px] text-stone-500 mt-1">
+          Cashback, freebets, depósitos bonificados, pontos resgatados em apostas. Não compõe o GGR (Lei 14.790), mas é despesa de marketing dedutível em IRPJ/CSLL.
+        </p>
+      </div>
+
+      <Field label="Jogadores ativos">
+        <Input type="number" min="0" value={data.active_players} onChange={e => setData({ ...data, active_players: parseInt(e.target.value) || 0 })} />
+      </Field>
       <Field label="Observações">
         <textarea value={data.notes} onChange={e => setData({ ...data, notes: e.target.value })}
           className="w-full px-3 py-2 bg-stone-50 border border-stone-300 text-sm focus:outline-none focus:border-ink rounded-sm min-h-[60px]" maxLength={2000} />

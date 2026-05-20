@@ -26,7 +26,11 @@ function ManualEntryModal({ brands, companies, current, onSubmit, onCancel }: {
     total_prizes: 0,
     total_deposits: 0,
     total_withdrawals: 0,
+    total_bonus: 0,
     bet_count: 0,
+    prize_count: 0,
+    deposit_count: 0,
+    withdrawal_count: 0,
     active_players: 0,
     notes: '',
   });
@@ -43,7 +47,9 @@ function ManualEntryModal({ brands, companies, current, onSubmit, onCancel }: {
     if (Object.keys(errs).length === 0) {
       setSubmitting(true);
       try {
-        await onSubmit(data);
+        // company_id é derivado do brand no backend — não enviar.
+        const { company_id: _ignored, ...payload } = data;
+        await onSubmit(payload);
       } catch (err: any) { setErrors({ form: err.response?.data?.message ?? 'Erro ao salvar.' }); }
       finally { setSubmitting(false); }
     }
@@ -90,20 +96,40 @@ function ManualEntryModal({ brands, companies, current, onSubmit, onCancel }: {
       <div className="bg-stone-50 border border-stone-200 rounded-sm p-4">
         <div className="text-xs uppercase tracking-wider text-stone-700 font-medium mb-3">Movimentação de carteira</div>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Depósitos">
+          <Field label="Depósitos (R$)">
             <CurrencyInput value={data.total_deposits} onChange={v => setData({ ...data, total_deposits: v })} />
           </Field>
-          <Field label="Saques">
+          <Field label="Saques (R$)">
             <CurrencyInput value={data.total_withdrawals} onChange={v => setData({ ...data, total_withdrawals: v })} />
           </Field>
+          <Field label="Qtd. depósitos">
+            <Input type="number" min="0" value={data.deposit_count} onChange={e => setData({ ...data, deposit_count: parseInt(e.target.value) || 0 })} />
+          </Field>
+          <Field label="Qtd. saques">
+            <Input type="number" min="0" value={data.withdrawal_count} onChange={e => setData({ ...data, withdrawal_count: parseInt(e.target.value) || 0 })} />
+          </Field>
         </div>
+        <p className="text-[11px] text-stone-500 mt-2">Quantidades alimentam a auditoria de tarifas bancárias (taxa contratada × volume de transações).</p>
+      </div>
+
+      <div className="bg-purple-50/40 border border-purple-200 rounded-sm p-4">
+        <div className="text-xs uppercase tracking-wider text-purple-900 font-medium mb-3">Gamificação (opcional)</div>
+        <Field label="Bônus distribuídos no dia (R$)">
+          <CurrencyInput value={data.total_bonus} onChange={v => setData({ ...data, total_bonus: v })} />
+        </Field>
+        <p className="text-[11px] text-stone-500 mt-2">
+          Cashback, freebets, depósitos bonificados, pontos resgatados em apostas. Não compõe o GGR (Lei 14.790), mas é despesa de marketing dedutível em IRPJ/CSLL.
+        </p>
       </div>
 
       <details className="bg-stone-50 border border-stone-200 rounded-sm p-4">
-        <summary className="text-xs uppercase tracking-wider text-stone-700 font-medium cursor-pointer">Quantidades e jogadores (opcional)</summary>
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <Field label="Quantidade de apostas">
+        <summary className="text-xs uppercase tracking-wider text-stone-700 font-medium cursor-pointer">Quantidades de apostas e jogadores (opcional)</summary>
+        <div className="mt-4 grid grid-cols-3 gap-4">
+          <Field label="Qtd. apostas">
             <Input type="number" min="0" value={data.bet_count} onChange={e => setData({ ...data, bet_count: parseInt(e.target.value) || 0 })} />
+          </Field>
+          <Field label="Qtd. prêmios">
+            <Input type="number" min="0" value={data.prize_count} onChange={e => setData({ ...data, prize_count: parseInt(e.target.value) || 0 })} />
           </Field>
           <Field label="Jogadores ativos">
             <Input type="number" min="0" value={data.active_players} onChange={e => setData({ ...data, active_players: parseInt(e.target.value) || 0 })} />
@@ -235,10 +261,55 @@ export default function GgrImportPage() {
           <p className="text-sm text-blue-800 mb-3">
             Para garantir que a importação funcione 100%, baixe nosso modelo CSV e preencha as colunas obrigatórias: <strong>data, apostas, premios, depositos, saques</strong>. O sistema também aceita variações em inglês (bets, prizes, deposits, withdrawals).
           </p>
-          <a href="/api/ggr/template" download
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-700 text-white text-xs rounded-sm hover:bg-blue-800 transition">
-            <Download className="w-3.5 h-3.5" /> Baixar template CSV
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <button type="button"
+              onClick={async () => {
+                try {
+                  const params = brandId ? { brand_id: brandId } : {};
+                  const res = await api.get('/ggr/template-xlsx', { params, responseType: 'blob' });
+                  const blob = new Blob([res.data], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                  });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  const stamp = new Date().toISOString().split('T')[0];
+                  a.download = `ggr-modelo-${stamp}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch (err: any) {
+                  alert(err?.response?.data?.message ?? 'Erro ao baixar modelo Excel.');
+                }
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-700 text-white text-xs rounded-sm hover:bg-blue-800 transition">
+              <Download className="w-3.5 h-3.5" /> Baixar modelo Excel (.xlsx)
+            </button>
+            <button type="button"
+              onClick={async () => {
+                try {
+                  const res = await api.get('/ggr/template', { responseType: 'blob' });
+                  const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8' });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'contbet_ggr_template.csv';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch (err: any) {
+                  alert(err?.response?.data?.message ?? 'Erro ao baixar modelo CSV.');
+                }
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-white text-blue-700 border border-blue-300 text-xs rounded-sm hover:bg-blue-50 transition">
+              <Download className="w-3.5 h-3.5" /> Baixar modelo CSV
+            </button>
+          </div>
+          <p className="text-xs text-blue-700 mt-2">
+            💡 O Excel vem com 31 dias pré-preenchidos e uma aba "Instruções". Selecione a marca acima antes de baixar pra que o nome do arquivo já saia identificado.
+          </p>
         </div>
       </div>
 

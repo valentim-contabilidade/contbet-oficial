@@ -10,6 +10,7 @@ export interface GgrDailyRecord {
   total_prizes: string;
   total_deposits: string;
   total_withdrawals: string;
+  total_bonus?: string;
   bet_count: number;
   prize_count: number;
   deposit_count: number;
