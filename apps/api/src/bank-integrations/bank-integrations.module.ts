@@ -89,11 +89,122 @@ export class BankIntegrationsService {
     if (dto.notes !== undefined) data.notes = dto.notes;
 
     const existing = await this.prisma.bankIntegration.findUnique({ where: { company_id: dto.company_id } });
+    // Gera webhook_token na criação (32 bytes hex). Mantém o existente em updates.
+    if (!existing) {
+      data.webhook_token = require('crypto').randomBytes(32).toString('hex');
+    }
     const saved = existing
       ? await this.prisma.bankIntegration.update({ where: { id: existing.id }, data })
       : await this.prisma.bankIntegration.create({ data: { ...data, company_id: dto.company_id } });
     await this.audit.log(existing ? 'UPDATE' : 'CREATE', 'BANK_INTEGRATION', saved.id, current.id);
     return { ...saved, client_id: this.maskKey(saved.client_id), client_secret: '••••••••' };
+  }
+
+  /** Constrói a URL pública que o usuário cola no dashboard Pluggy. */
+  private buildWebhookUrl(token: string): string {
+    const base = process.env.PUBLIC_API_URL ?? process.env.API_URL ?? 'http://localhost:3001';
+    return `${base.replace(/\/$/, '')}/api/bank-integrations/webhook?t=${token}`;
+  }
+
+  /**
+   * Recebe e processa um webhook do provedor (Pluggy).
+   * Eventos suportados:
+   *   - item/updated, item/login_succeeded → re-sync transações + atualiza status
+   *   - item/error, item/waiting_user_input → só atualiza status
+   *   - item/deleted → soft-delete da conexão local
+   *   - transactions/created, transactions/updated → sync incremental do item
+   * Outros eventos (payment_*, smart_transfer_*) são logados e ignorados (não usamos).
+   */
+  async handleWebhook(token: string, payload: any) {
+    if (!token) throw new BadRequestException('Token ausente.');
+    const integ = await this.prisma.bankIntegration.findFirst({
+      where: { webhook_token: token, metadeleted: false },
+    });
+    if (!integ) {
+      this.logger.warn('Webhook recebido com token inválido.');
+      // Devolve 200 mesmo assim para não dar feedback de descoberta de tokens.
+      return { ok: true, ignored: true };
+    }
+
+    const event: string = payload?.event ?? payload?.type ?? '';
+    const itemId: string | undefined = payload?.itemId ?? payload?.item?.id ?? payload?.data?.itemId;
+
+    await this.prisma.bankIntegration.update({
+      where: { id: integ.id },
+      data: { last_webhook_at: new Date() },
+    });
+
+    this.logger.log(`Webhook ${event} (item=${itemId ?? 'n/a'})`);
+
+    if (!itemId) return { ok: true, event, action: 'no-item' };
+
+    const conn = await this.prisma.bankConnection.findFirst({
+      where: { integration_id: integ.id, provider_item_id: itemId, metadeleted: false },
+    });
+    if (!conn) return { ok: true, event, action: 'connection-not-found' };
+
+    // Pseudo-usuário com privilégios da empresa para reusar métodos existentes
+    const systemUser = { profile: Profile.ADMIN, id: 'webhook-system', company_id: conn.company_id };
+
+    try {
+      if (event === 'item/deleted') {
+        await this.prisma.bankConnection.update({
+          where: { id: conn.id },
+          data: { metadeleted: true, status: BankConnectionStatus.DISCONNECTED },
+        });
+        return { ok: true, event, action: 'disconnected' };
+      }
+
+      if (event === 'item/error' || event === 'item/login_error') {
+        await this.prisma.bankConnection.update({
+          where: { id: conn.id },
+          data: { status: BankConnectionStatus.LOGIN_ERROR, last_error: payload?.error?.message ?? null },
+        });
+        return { ok: true, event, action: 'marked-error' };
+      }
+
+      if (event === 'item/waiting_user_input') {
+        await this.prisma.bankConnection.update({
+          where: { id: conn.id },
+          data: { status: BankConnectionStatus.WAITING_USER_INPUT },
+        });
+        return { ok: true, event, action: 'marked-waiting-mfa' };
+      }
+
+      if (
+        event === 'item/updated' ||
+        event === 'item/login_succeeded' ||
+        event === 'transactions/created' ||
+        event === 'transactions/updated'
+      ) {
+        // Dispara sync em background (200ms timeout pra responder rápido ao Pluggy)
+        this.syncConnection(conn.id, {}, systemUser).catch((e) =>
+          this.logger.warn(`Sync via webhook ${event} falhou: ${e?.message}`),
+        );
+        return { ok: true, event, action: 'sync-triggered' };
+      }
+    } catch (err: any) {
+      this.logger.error(`Erro processando webhook ${event}: ${err?.message}`);
+    }
+
+    return { ok: true, event, action: 'ignored' };
+  }
+
+  /** Retorna a URL completa que o usuário deve colar no dashboard Pluggy. */
+  async getWebhookConfig(companyId: string, current: any) {
+    this.assertCompanyAccess(companyId, current);
+    const integ = await this.prisma.bankIntegration.findUnique({ where: { company_id: companyId } });
+    if (!integ) return null;
+    if (!integ.webhook_token) {
+      // Backfill para integrações criadas antes da feature
+      const token = require('crypto').randomBytes(32).toString('hex');
+      await this.prisma.bankIntegration.update({ where: { id: integ.id }, data: { webhook_token: token } });
+      integ.webhook_token = token;
+    }
+    return {
+      url: this.buildWebhookUrl(integ.webhook_token!),
+      last_webhook_at: integ.last_webhook_at,
+    };
   }
 
   // ---------- Connect token (frontend widget) ----------
@@ -345,6 +456,36 @@ export class BankIntegrationsService {
     return created;
   }
 
+  /**
+   * Catálogo de conectores (bancos) suportados pelo provedor configurado.
+   * Cacheado em memória por 1h para evitar bater na API a cada page-load.
+   */
+  private connectorsCache: { at: number; data: any[] } | null = null;
+  async listConnectors(companyId: string, current: any): Promise<any[]> {
+    this.assertCompanyAccess(companyId, current);
+    const integ = await this.prisma.bankIntegration.findUnique({ where: { company_id: companyId } });
+    if (!integ || !integ.is_active) {
+      throw new BadRequestException('Configure as credenciais Pluggy antes de listar bancos.');
+    }
+    const TTL = 60 * 60 * 1000;
+    if (this.connectorsCache && Date.now() - this.connectorsCache.at < TTL) {
+      return this.connectorsCache.data;
+    }
+    const adapter = createBankAdapter(
+      integ.type,
+      integ.client_id,
+      decrypt(integ.client_secret),
+      integ.sandbox_mode,
+    );
+    const list = await adapter.listConnectors({ countries: ['BR'], sandbox: integ.sandbox_mode });
+    // Filtra: só bancos pessoais/empresariais (esconde investments e tax-collectors)
+    const banks = list.filter((c) =>
+      c.type === 'PERSONAL_BANK' || c.type === 'BUSINESS_BANK' || c.type === null,
+    );
+    this.connectorsCache = { at: Date.now(), data: banks };
+    return banks;
+  }
+
   private mapStatus(raw: string): BankConnectionStatus {
     const s = (raw ?? '').toUpperCase();
     if (s === 'UPDATED' || s === 'UPDATING') return s === 'UPDATING' ? BankConnectionStatus.UPDATING : BankConnectionStatus.ACTIVE;
@@ -395,6 +536,13 @@ export class BankIntegrationsController {
     return this.service.listConnections(companyId, user);
   }
 
+  /** Catálogo dinâmico de bancos suportados (com logo + nome). */
+  @Profiles(Profile.ADMIN, Profile.MANAGER)
+  @Get('connectors/:companyId')
+  listConnectors(@Param('companyId') companyId: string, @CurrentUser() user: any) {
+    return this.service.listConnectors(companyId, user);
+  }
+
   @Profiles(Profile.ADMIN, Profile.MANAGER)
   @Post('connections/:id/sync')
   sync(@Param('id') id: string, @Body() dto: SyncDto, @CurrentUser() user: any) {
@@ -406,10 +554,33 @@ export class BankIntegrationsController {
   disconnect(@Param('id') id: string, @CurrentUser() user: any) {
     return this.service.disconnect(id, user);
   }
+
+  /** Retorna a URL completa do webhook + último timestamp recebido. */
+  @Profiles(Profile.ADMIN, Profile.MANAGER)
+  @Get('webhook-config/:companyId')
+  getWebhookConfig(@Param('companyId') companyId: string, @CurrentUser() user: any) {
+    return this.service.getWebhookConfig(companyId, user);
+  }
+}
+
+/**
+ * Controller separado para o webhook público (sem JwtAuthGuard).
+ * O "segredo" é o token aleatório na query string ?t=xxx, validado no service.
+ * Pluggy aceita até 5s de resposta — tudo que demora roda em background.
+ */
+@ApiTags('bank-integrations')
+@Controller('bank-integrations/webhook')
+export class BankIntegrationsWebhookController {
+  constructor(private service: BankIntegrationsService) {}
+
+  @Post()
+  receive(@Query('t') token: string, @Body() payload: any) {
+    return this.service.handleWebhook(token, payload);
+  }
 }
 
 @Module({
-  controllers: [BankIntegrationsController],
+  controllers: [BankIntegrationsController, BankIntegrationsWebhookController],
   providers: [BankIntegrationsService],
   exports: [BankIntegrationsService],
 })

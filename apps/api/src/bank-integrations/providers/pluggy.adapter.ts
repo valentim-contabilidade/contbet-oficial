@@ -28,6 +28,26 @@ export interface BankIntegrationAdapter {
   listTransactions(input: ListTransactionsInput): Promise<TransactionSnapshot[]>;
   /** Força sincronização do item (Pluggy: PATCH /items/{id} com mfa params ou só refresh) */
   refreshItem(itemId: string): Promise<{ ok: boolean }>;
+  /** Catálogo de conectores (bancos) suportados, com logo e nome. */
+  listConnectors(filters?: ListConnectorsInput): Promise<ConnectorSnapshot[]>;
+}
+
+export interface ListConnectorsInput {
+  countries?: string[]; // ['BR']
+  types?: string[];     // ['PERSONAL_BANK', 'BUSINESS_BANK']
+  sandbox?: boolean;
+}
+
+export interface ConnectorSnapshot {
+  id: number | string;
+  name: string;
+  logo_url: string | null;
+  primary_color: string | null;
+  type: string | null;        // PERSONAL_BANK, BUSINESS_BANK, INVESTMENT, etc.
+  country: string | null;     // 'BR', 'AR'…
+  has_mfa: boolean;
+  is_open_finance: boolean;
+  is_sandbox: boolean;
 }
 
 export interface CreateConnectTokenInput {
@@ -161,6 +181,27 @@ export class PluggyAdapter implements BankIntegrationAdapter {
   async refreshItem(itemId: string): Promise<{ ok: boolean }> {
     await this.authedRequest('PATCH', `/items/${itemId}`, { data: {} });
     return { ok: true };
+  }
+
+  async listConnectors(filters: ListConnectorsInput = {}): Promise<ConnectorSnapshot[]> {
+    const params: any = {};
+    if (filters.countries?.length) params.countries = filters.countries.join(',');
+    if (filters.types?.length) params.types = filters.types.join(',');
+    if (filters.sandbox !== undefined) params.sandbox = filters.sandbox ? 'true' : 'false';
+
+    const res = await this.authedRequest<any>('GET', '/connectors', { params });
+    const list: any[] = res?.results ?? res ?? [];
+    return list.map((c) => ({
+      id: c.id,
+      name: c.name ?? '',
+      logo_url: c.imageUrl ?? null,
+      primary_color: c.primaryColor ? `#${String(c.primaryColor).replace(/^#/, '')}` : null,
+      type: c.type ?? null,
+      country: c.country ?? null,
+      has_mfa: !!c.hasMFA,
+      is_open_finance: !!c.isOpenFinance,
+      is_sandbox: !!c.isSandbox,
+    }));
   }
 
   async listAccounts(itemId: string): Promise<AccountSnapshot[]> {
