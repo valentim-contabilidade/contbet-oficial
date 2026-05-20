@@ -1,5 +1,6 @@
 import { PrismaClient, Profile, Status } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { syncDefaultAccountingRules } from '../src/accounting/default-rules';
 
 const prisma = new PrismaClient();
 
@@ -81,6 +82,8 @@ async function main() {
   console.log('🌱 Seeding ContBet database...');
   await seedAdmin();
   await seedBanks();
+  const rulesRes = await syncDefaultAccountingRules(prisma);
+  console.log(`📒 Accounting rules: ${rulesRes.created} criadas (catálogo: ${rulesRes.total_default}).`);
   console.log('✨ Seed concluído.');
 }
 

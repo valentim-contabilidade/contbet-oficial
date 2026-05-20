@@ -16,6 +16,8 @@ import { ProfilesGuard, Profiles, CurrentUser } from '../auth/current-user.decor
 import { buildTenantWhere, assertTenantAccess, resolveCompanyForCreate } from '../financial/tenant.helper';
 import { serializeBigInt } from '../financial/money.helper';
 import { JournalPostingService } from './journal-posting.service';
+import { DEFAULT_ACCOUNTING_RULES, syncDefaultAccountingRules } from './default-rules';
+import { DEFAULT_CHART_OF_ACCOUNTS } from '../financial/chart-of-accounts/default-accounts';
 
 // ============================== DTOs ==============================
 
@@ -487,9 +489,117 @@ export class AccountingController {
   }
 }
 
+// ============================== Accounting Rules ==============================
+
+class UpdateAccountingRuleDto {
+  @IsOptional() @IsString() @MaxLength(20) debit_code?: string | null;
+  @IsOptional() @IsString() @MaxLength(20) credit_code?: string | null;
+  @IsOptional() @IsNumber() @Min(0) historic_code?: number | null;
+  @IsOptional() @IsString() @MaxLength(500) historic_template?: string | null;
+  @IsOptional() label?: string;
+  @IsOptional() description?: string | null;
+  @IsOptional() active?: boolean;
+}
+
+@Injectable()
+export class AccountingRulesService {
+  constructor(private prisma: PrismaService, private audit: AuditService) {}
+
+  async findAll() {
+    const rules = await this.prisma.accountingRule.findMany({
+      where: { metadeleted: false },
+      orderBy: [{ group: 'asc' }, { event_key: 'asc' }],
+    });
+    // Catálogo de contas modelo (default-accounts.ts) — códigos que as regras
+    // realmente referenciam. Inclui type pra a UI poder filtrar/colorir.
+    const accounts_by_code: Record<string, string> = {};
+    const default_accounts = DEFAULT_CHART_OF_ACCOUNTS.map(a => ({
+      code: a.code, name: a.name, type: a.type, parent_code: a.parent_code,
+    }));
+    for (const a of DEFAULT_CHART_OF_ACCOUNTS) accounts_by_code[a.code] = a.name;
+    return { data: rules, total: rules.length, accounts_by_code, default_accounts };
+  }
+
+  async update(id: string, dto: UpdateAccountingRuleDto, current: any) {
+    const r = await this.prisma.accountingRule.findUnique({ where: { id } });
+    if (!r || r.metadeleted) throw new NotFoundException('Regra não encontrada.');
+    const updated = await this.prisma.accountingRule.update({
+      where: { id },
+      data: {
+        debit_code: dto.debit_code !== undefined ? (dto.debit_code || null) : undefined,
+        credit_code: dto.credit_code !== undefined ? (dto.credit_code || null) : undefined,
+        historic_code: dto.historic_code !== undefined ? dto.historic_code : undefined,
+        historic_template: dto.historic_template !== undefined ? (dto.historic_template || null) : undefined,
+        label: dto.label,
+        description: dto.description !== undefined ? (dto.description || null) : undefined,
+        active: dto.active,
+      },
+    });
+    await this.audit.log('UPDATE', 'ACCOUNTING_RULE', id, current.id, dto);
+    return updated;
+  }
+
+  async resetToDefault(id: string, current: any) {
+    const r = await this.prisma.accountingRule.findUnique({ where: { id } });
+    if (!r || r.metadeleted) throw new NotFoundException('Regra não encontrada.');
+    const def = DEFAULT_ACCOUNTING_RULES.find(d => d.event_key === r.event_key);
+    if (!def) throw new BadRequestException('Não há default no catálogo para esta regra.');
+    const updated = await this.prisma.accountingRule.update({
+      where: { id },
+      data: {
+        debit_code: def.debit_code ?? null,
+        credit_code: def.credit_code ?? null,
+        historic_code: def.historic_code ?? null,
+        historic_template: def.historic_template ?? null,
+        label: def.label,
+        description: def.description ?? null,
+        active: true,
+      },
+    });
+    await this.audit.log('RESET', 'ACCOUNTING_RULE', id, current.id);
+    return updated;
+  }
+
+  async syncDefaults(current: any) {
+    const res = await syncDefaultAccountingRules(this.prisma as any);
+    await this.audit.log('SYNC', 'ACCOUNTING_RULE', 'catalog', current.id, res);
+    return res;
+  }
+}
+
+@ApiTags('accounting/rules')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, ProfilesGuard)
+@Controller('accounting/rules')
+export class AccountingRulesController {
+  constructor(private service: AccountingRulesService) {}
+
+  @Profiles(Profile.ADMIN)
+  @Get()
+  findAll() { return this.service.findAll(); }
+
+  @Profiles(Profile.ADMIN)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateAccountingRuleDto, @CurrentUser() user: any) {
+    return this.service.update(id, dto, user);
+  }
+
+  @Profiles(Profile.ADMIN)
+  @Post(':id/reset')
+  reset(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.service.resetToDefault(id, user);
+  }
+
+  @Profiles(Profile.ADMIN)
+  @Post('sync-defaults')
+  sync(@CurrentUser() user: any) {
+    return this.service.syncDefaults(user);
+  }
+}
+
 @Module({
-  controllers: [AccountingController],
-  providers: [AccountingService, JournalPostingService],
+  controllers: [AccountingController, AccountingRulesController],
+  providers: [AccountingService, JournalPostingService, AccountingRulesService],
   exports: [AccountingService, JournalPostingService],
 })
 export class AccountingModule {}
