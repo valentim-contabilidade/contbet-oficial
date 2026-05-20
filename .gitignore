@@ -6,6 +6,11 @@ dist/
 .next/
 build/
 .turbo/
+*.tsbuildinfo
+
+# Artefatos locais (não versionar)
+contbet-pitch-deck.pptx
+scripts/backup-to-icloud.sh
 
 # Variáveis de ambiente (contém segredos)
 .env
