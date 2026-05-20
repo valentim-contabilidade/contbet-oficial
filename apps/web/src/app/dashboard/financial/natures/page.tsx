@@ -8,7 +8,7 @@ import type { Company } from '@/lib/types';
 import type { FinancialNature, NatureType, DreSection } from '@/lib/nature-types';
 import {
   natureTypeLabels, dreSectionLabels, dreSectionColors, dreSectionOrder,
-  RECEITA_SECTIONS, DESPESA_SECTIONS,
+  RECEITA_SECTIONS, DESPESA_SECTIONS, SUGGESTED_NATURE_NAMES,
 } from '@/lib/nature-format';
 import { PageHeader, Field, Input, Select, PrimaryButton, SecondaryButton, NewButton, Modal, ConfirmDeleteModal } from '@/components/ui';
 
@@ -32,6 +32,12 @@ function NatureForm({ initial, current, companies, onSubmit, onCancel }: {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  // Permite nome livre (fora do catálogo da DRE). Por padrão, força escolha do catálogo.
+  const [customName, setCustomName] = useState(() => {
+    if (!isEdit) return false;
+    const suggested = SUGGESTED_NATURE_NAMES[initial?.dre_section ?? 'DESPESA_OPERACIONAL'] ?? [];
+    return !!initial?.name && !suggested.some(s => s.name === initial.name);
+  });
 
   // Garante que dre_section seja coerente com type
   const handleTypeChange = (newType: NatureType) => {
@@ -39,7 +45,23 @@ function NatureForm({ initial, current, companies, onSubmit, onCancel }: {
     const newSection = validSections.includes(data.dre_section)
       ? data.dre_section
       : validSections[0];
-    setData({ ...data, type: newType, dre_section: newSection });
+    // Ao trocar de tipo/seção, limpa nome para forçar nova escolha do catálogo
+    setData({ ...data, type: newType, dre_section: newSection, name: customName ? data.name : '' });
+  };
+
+  const handleSectionChange = (newSection: DreSection) => {
+    setData({ ...data, dre_section: newSection, name: customName ? data.name : '' });
+  };
+
+  const suggestedForSection = SUGGESTED_NATURE_NAMES[data.dre_section] ?? [];
+
+  const handlePickSuggested = (name: string) => {
+    const found = suggestedForSection.find(s => s.name === name);
+    setData({
+      ...data,
+      name,
+      accounting_code: found?.accounting_code ?? data.accounting_code,
+    });
   };
 
   const validSections = data.type === 'RECEITA' ? RECEITA_SECTIONS : DESPESA_SECTIONS;
@@ -98,15 +120,40 @@ function NatureForm({ initial, current, companies, onSubmit, onCancel }: {
         </div>
       </Field>
 
-      <Field label="Nome" required error={errors.name}>
-        <Input value={data.name} onChange={e => setData({ ...data, name: e.target.value })} placeholder="Ex: Despesas com Marketing Digital" />
-      </Field>
-
       <Field label="Seção da DRE" required>
-        <Select value={data.dre_section} onChange={e => setData({ ...data, dre_section: e.target.value as DreSection })}>
+        <Select value={data.dre_section} onChange={e => handleSectionChange(e.target.value as DreSection)}>
           {validSections.map(s => <option key={s} value={s}>{dreSectionLabels[s]}</option>)}
         </Select>
-        <div className="text-xs text-stone-500 mt-1">Define em qual linha da DRE este lançamento aparecerá.</div>
+        <div className="text-xs text-stone-500 mt-1">Define em qual linha da DRE este lançamento aparecerá. O nome abaixo é restrito ao catálogo desta seção.</div>
+      </Field>
+
+      <Field label="Nome" required error={errors.name}>
+        {!customName ? (
+          <>
+            <Select value={data.name} onChange={e => handlePickSuggested(e.target.value)}>
+              <option value="">Selecione do catálogo da DRE...</option>
+              {suggestedForSection.map(s => (
+                <option key={s.name} value={s.name}>{s.name}{s.accounting_code ? ` — ${s.accounting_code}` : ''}</option>
+              ))}
+            </Select>
+            <div className="text-xs text-stone-500 mt-1 flex items-center justify-between gap-2">
+              <span>Restrito ao catálogo padrão para evitar duplicidades e inflar a DRE.</span>
+              <button type="button" onClick={() => setCustomName(true)} className="text-ink underline hover:no-underline whitespace-nowrap">
+                Usar outro nome
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Input value={data.name} onChange={e => setData({ ...data, name: e.target.value })} placeholder="Ex: Despesas com Marketing Digital" />
+            <div className="text-xs text-stone-500 mt-1 flex items-center justify-between gap-2">
+              <span className="text-amber-700">⚠ Nome livre. Confirme que não duplica uma natureza já existente.</span>
+              <button type="button" onClick={() => { setCustomName(false); setData({ ...data, name: '' }); }} className="text-ink underline hover:no-underline whitespace-nowrap">
+                Voltar ao catálogo
+              </button>
+            </div>
+          </>
+        )}
       </Field>
 
       <div className="grid grid-cols-2 gap-4">

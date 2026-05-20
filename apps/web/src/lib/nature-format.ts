@@ -63,3 +63,48 @@ export const DESPESA_SECTIONS: DreSection[] = [
   'DESPESA_FINANCEIRA',
   'IMPOSTO_LUCRO',
 ];
+
+/**
+ * Catálogo padrão de nomes de naturezas sugeridos por seção da DRE.
+ * Usado no formulário "Nova natureza" para evitar nomes livres/duplicados.
+ * Espelha (e expande levemente) as 16 naturezas padrão do backend.
+ */
+export const SUGGESTED_NATURE_NAMES: Record<DreSection, { name: string; accounting_code?: string; description?: string }[]> = {
+  RECEITA_OPERACIONAL: [
+    { name: 'GGR (Receita de Apostas)', accounting_code: '3.1.01' },
+    { name: 'Receita de Serviços', accounting_code: '3.1.02' },
+    { name: 'Outras Receitas Operacionais', accounting_code: '3.1.03' },
+  ],
+  RECEITA_FINANCEIRA: [
+    { name: 'Receita Financeira', accounting_code: '3.2.01' },
+    { name: 'Rendimentos de Aplicações', accounting_code: '3.2.02' },
+    { name: 'Variação Cambial Ativa', accounting_code: '3.2.03' },
+  ],
+  DEDUCAO_RECEITA: [
+    { name: 'Tributos sobre Receita - Lei 14.790', accounting_code: '3.1.91' },
+    { name: 'PIS / COFINS sobre Receita', accounting_code: '3.1.92' },
+    { name: 'ISS sobre Serviços', accounting_code: '3.1.93' },
+  ],
+  CUSTO_OPERACIONAL: [
+    { name: 'Prêmios Pagos a Apostadores', accounting_code: '4.1.01' },
+    { name: 'Custos com Plataforma', accounting_code: '4.1.02' },
+    { name: 'Custos com Provedores de Jogos', accounting_code: '4.1.03' },
+  ],
+  DESPESA_OPERACIONAL: [
+    { name: 'Despesas com Pessoal', accounting_code: '4.2.01' },
+    { name: 'Despesas Administrativas', accounting_code: '4.2.02' },
+    { name: 'Despesas Comerciais e Marketing', accounting_code: '4.2.03' },
+    { name: 'Despesas Tecnológicas', accounting_code: '4.2.04' },
+    { name: 'Despesas Tributárias Operacionais', accounting_code: '4.2.05' },
+  ],
+  DESPESA_NAO_OPERACIONAL: [
+    { name: 'Despesas Não Operacionais', accounting_code: '4.3.01' },
+  ],
+  DESPESA_FINANCEIRA: [
+    { name: 'Despesas Financeiras', accounting_code: '4.4.01' },
+    { name: 'Variação Cambial Passiva', accounting_code: '4.4.02' },
+  ],
+  IMPOSTO_LUCRO: [
+    { name: 'IRPJ + CSLL', accounting_code: '4.9.01' },
+  ],
+};

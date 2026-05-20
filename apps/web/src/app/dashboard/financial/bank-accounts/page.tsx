@@ -23,6 +23,9 @@ function BankAccountForm({ initial, onSubmit, onCancel, current, companies }: { 
     description: initial?.description ?? '',
     company_id: initial?.company_id ?? (current.profile === 'MANAGER' ? current.company_id : ''),
     is_active: initial?.is_active ?? true,
+    is_player_wallet: (initial as any)?.is_player_wallet ?? false,
+    fee_per_credit: (initial as any)?.fee_per_credit ? Number((initial as any).fee_per_credit) : 0,
+    fee_per_debit: (initial as any)?.fee_per_debit ? Number((initial as any).fee_per_debit) : 0,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -36,13 +39,18 @@ function BankAccountForm({ initial, onSubmit, onCancel, current, companies }: { 
     if (Object.keys(errs).length === 0) {
       setSubmitting(true);
       try {
-        const payload: any = { name: data.name, type: data.type };
+        const payload: any = { name: data.name };
+        if (!isEdit) payload.type = data.type;
         if (data.bank_name) payload.bank_name = data.bank_name;
         if (data.bank_code) payload.bank_code = data.bank_code;
         if (data.agency) payload.agency = data.agency;
         if (data.account_number) payload.account_number = data.account_number;
         if (data.description) payload.description = data.description;
         if (isEdit) payload.is_active = data.is_active;
+        payload.is_player_wallet = data.is_player_wallet;
+        // Taxas só fazem sentido quando é carteira de apostadores; zera caso contrário.
+        payload.fee_per_credit = data.is_player_wallet ? data.fee_per_credit : 0;
+        payload.fee_per_debit  = data.is_player_wallet ? data.fee_per_debit  : 0;
         if (!isEdit) {
           payload.company_id = data.company_id;
           payload.initial_balance = data.initial_balance;
@@ -104,6 +112,36 @@ function BankAccountForm({ initial, onSubmit, onCancel, current, companies }: { 
             <div className="text-xs text-stone-600">Contas inativas não aparecem em formulários de pagamento/recebimento. Útil para contas auto-importadas via Pluggy que ainda não foram revisadas.</div>
           </div>
         </label>
+      )}
+
+      <label className="flex items-start gap-3 p-3 border border-amber-200 bg-amber-50/40 rounded-sm cursor-pointer hover:bg-amber-50">
+        <input type="checkbox" checked={data.is_player_wallet}
+          onChange={e => setData({ ...data, is_player_wallet: e.target.checked })} className="mt-1" />
+        <div>
+          <div className="text-sm font-medium">Conta de carteira de apostadores (segregada · Lei 14.790)</div>
+          <div className="text-xs text-stone-700">Marque se esta conta custodia exclusivamente dinheiro dos apostadores. Será usada na auditoria de movimentação para cruzar depósitos/saques do sistema com os extratos bancários.</div>
+        </div>
+      </label>
+
+      {data.is_player_wallet && (
+        <div className="bg-stone-50 border border-stone-200 rounded-sm p-3">
+          <div className="text-xs uppercase tracking-wider text-stone-700 font-medium mb-3">
+            Taxas bancárias contratadas (auditoria de tarifas)
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Taxa por crédito (depósito recebido)">
+              <CurrencyInput value={data.fee_per_credit} onChange={v => setData({ ...data, fee_per_credit: v })} />
+              <div className="text-xs text-stone-500 mt-1">Ex: R$ 0,15 por Pix recebido</div>
+            </Field>
+            <Field label="Taxa por débito (saque enviado)">
+              <CurrencyInput value={data.fee_per_debit} onChange={v => setData({ ...data, fee_per_debit: v })} />
+              <div className="text-xs text-stone-500 mt-1">Ex: R$ 0,40 por Pix enviado</div>
+            </Field>
+          </div>
+          <div className="text-xs text-stone-500 mt-2">
+            Usado na <strong>Auditoria → Tarifas bancárias</strong> para calcular o total esperado de tarifas (qtd × taxa) e comparar com o que o banco efetivamente cobrou.
+          </div>
+        </div>
       )}
 
       <Field label="Observações">

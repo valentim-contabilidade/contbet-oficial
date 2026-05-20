@@ -116,10 +116,53 @@ export class AccountsReceivableService {
     }
   }
 
+  /**
+   * Nature compartilhada por dre_section (não por conta individual).
+   *   4.1.* → Receita Operacional
+   *   4.2.* → Receita Financeira / Não Operacional
+   */
+  private async ensureNatureForAccount(accountId: string, companyId: string) {
+    const account = await this.prisma.chartOfAccount.findUnique({ where: { id: accountId } });
+    if (!account || account.metadeleted) return null;
+    if (account.company_id !== companyId) return null;
+    if (account.type !== 'REVENUE') return null;
+
+    const code = account.code;
+    let section: 'RECEITA_OPERACIONAL' | 'RECEITA_FINANCEIRA' | 'DEDUCAO_RECEITA' = 'RECEITA_OPERACIONAL';
+    let nameSuggested = 'Receita Operacional';
+    if (code.startsWith('4.2')) { section = 'RECEITA_FINANCEIRA'; nameSuggested = 'Receita Financeira'; }
+
+    const existing = await this.prisma.financialNature.findFirst({
+      where: {
+        company_id: companyId,
+        type: NatureType.RECEITA,
+        dre_section: section as any,
+        is_active: true,
+        metadeleted: false,
+      },
+      orderBy: [{ is_default: 'desc' }, { created_at: 'asc' }],
+    });
+    if (existing) return existing;
+
+    return this.prisma.financialNature.create({
+      data: {
+        name: nameSuggested,
+        type: NatureType.RECEITA,
+        dre_section: section as any,
+        description: 'Auto-criada a partir de classificação DRE.',
+        company_id: companyId,
+      },
+    });
+  }
+
   async create(dto: CreateAccountReceivableDto, current: any) {
     const company_id = resolveCompanyForCreate(dto, current);
 
     const contactData = await this.resolveContact(dto.contact_id, company_id);
+    if (!dto.nature_id && dto.account_id) {
+      const nature = await this.ensureNatureForAccount(dto.account_id, company_id);
+      if (nature) dto.nature_id = nature.id;
+    }
     await this.validateNature(dto.nature_id, company_id);
 
     const data: any = {
@@ -205,6 +248,10 @@ export class AccountsReceivableService {
       throw new BadRequestException('Recebimento já confirmado não pode ser editado.');
     }
 
+    if ((!dto.nature_id || dto.nature_id === '') && dto.account_id) {
+      const nature = await this.ensureNatureForAccount(dto.account_id, existing.company_id);
+      if (nature) dto.nature_id = nature.id;
+    }
     if (dto.nature_id !== undefined && dto.nature_id !== '') {
       await this.validateNature(dto.nature_id, existing.company_id);
     }

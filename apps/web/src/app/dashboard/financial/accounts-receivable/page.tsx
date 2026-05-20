@@ -5,7 +5,7 @@ import { Edit2, Trash2, DollarSign, Calendar, Layers, Receipt } from 'lucide-rea
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatBRL, formatBRLInput, parseInputToCents, formatDate, todayInput, formatDocument } from '@/lib/format';
-import type { AccountReceivable, Company, Brand, FinancialCategory, BankAccount } from '@/lib/types';
+import type { AccountReceivable, Company, Brand, FinancialCategory, BankAccount, ChartOfAccount } from '@/lib/types';
 import type { FinancialNature } from '@/lib/nature-types';
 import { dreSectionShortLabels, dreSectionColors } from '@/lib/nature-format';
 import { PageHeader, FilterBar, Pagination, Modal, ConfirmDeleteModal, Field, Input, Select, PrimaryButton, SecondaryButton, NewButton, StatusBadge } from '@/components/ui';
@@ -35,16 +35,34 @@ function ReceivableForm({ initial, current, companies, brands, categories, onSub
     brand_id: initial?.brand_id ?? '',
     category_id: initial?.category_id ?? '',
     nature_id: (initial as any)?.nature_id ?? '',
+    account_id: (initial as any)?.account_id ?? '',
     revenue_type: ((initial as any)?.revenue_type ?? 'NON_OPERATIONAL') as 'OPERATIONAL' | 'NON_OPERATIONAL',
     notes: initial?.notes ?? '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [accounts, setAccounts] = useState<ChartOfAccount[]>([]);
 
   const visibleCompanies = current.profile === 'MANAGER' ? companies.filter(c => c.id === current.company_id) : companies;
   const filteredBrands = brands.filter(b => b.company_id === data.company_id);
   const incomeCategories = categories.filter(c => c.company_id === data.company_id && c.type === 'INCOME');
+
+  // Carrega contas analíticas REVENUE da empresa selecionada
+  useEffect(() => {
+    if (!data.company_id) { setAccounts([]); return; }
+    api.get('/financial/chart-of-accounts', {
+      params: { company_id: data.company_id, page: 1 },
+    }).then(r => {
+      const all: ChartOfAccount[] = r.data.data ?? [];
+      const isLeaf = (a: ChartOfAccount) =>
+        !all.some(b => b.code !== a.code && b.code.startsWith(a.code + '.'));
+      const revenues = all
+        .filter(a => a.type === 'REVENUE' && a.is_active && isLeaf(a))
+        .sort((a, b) => a.code.localeCompare(b.code, 'pt-BR'));
+      setAccounts(revenues);
+    }).catch(() => setAccounts([]));
+  }, [data.company_id]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +73,7 @@ function ReceivableForm({ initial, current, companies, brands, categories, onSub
     if (!data.amount || parseInputToCents(data.amount) < 1) errs.amount = 'Valor obrigatório';
     if (!data.issue_date) errs.issue_date = 'Data de emissão obrigatória';
     if (!data.due_date) errs.due_date = 'Vencimento obrigatório';
-    if (!isEdit && !data.nature_id) errs.nature_id = 'Natureza contábil obrigatória';
+    if (!isEdit && !data.nature_id && !data.account_id) errs.nature_id = 'Selecione natureza contábil ou plano de contas';
     setErrors(errs);
 
     if (Object.keys(errs).length === 0) {
@@ -71,6 +89,7 @@ function ReceivableForm({ initial, current, companies, brands, categories, onSub
           brand_id: data.brand_id || undefined,
           category_id: data.category_id || undefined,
           nature_id: data.nature_id || undefined,
+          account_id: data.account_id || undefined,
           revenue_type: data.revenue_type,
         };
         if (data.contact_id) {
@@ -91,7 +110,7 @@ function ReceivableForm({ initial, current, companies, brands, categories, onSub
     <form onSubmit={submit} className="space-y-3">
       {!isEdit && (
         <Field label="Empresa" required error={errors.company_id}>
-          <Select value={data.company_id} onChange={e => setData({ ...data, company_id: e.target.value, brand_id: '', category_id: '', nature_id: '' })}
+          <Select value={data.company_id} onChange={e => setData({ ...data, company_id: e.target.value, brand_id: '', category_id: '', nature_id: '', account_id: '' })}
             disabled={current.profile === 'MANAGER'}>
             <option value="">Selecione...</option>
             {visibleCompanies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -139,16 +158,21 @@ function ReceivableForm({ initial, current, companies, brands, categories, onSub
         <Field label={
           <span className="flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-green-700" />
-            Natureza Contábil (DRE)
+            Natureza Contábil (DRE){data.account_id ? <span className="text-[10px] text-stone-500 ml-1">— auto</span> : null}
           </span>
-        } required error={errors.nature_id}>
+        } required={!data.account_id} error={errors.nature_id}>
           <NatureSelect
             companyId={data.company_id}
             type="RECEITA"
             value={data.nature_id || null}
             onChange={(natureId) => setData({ ...data, nature_id: natureId ?? '' })}
-            required
+            required={!data.account_id}
           />
+          {data.account_id && !data.nature_id && (
+            <div className="text-[10px] text-emerald-700 mt-1">
+              ✓ Será derivada automaticamente do plano de contas selecionado.
+            </div>
+          )}
         </Field>
       </div>
 
@@ -196,12 +220,36 @@ function ReceivableForm({ initial, current, companies, brands, categories, onSub
                 </Select>
               </Field>
               <Field label="Categoria (visual, opcional)">
-                <Select value={data.category_id} onChange={e => setData({ ...data, category_id: e.target.value })}>
+                <Select value={data.category_id} onChange={e => {
+                  const newCatId = e.target.value;
+                  const cat = incomeCategories.find(c => c.id === newCatId);
+                  const updates: any = { category_id: newCatId };
+                  if (cat?.default_nature_id && !data.nature_id) {
+                    updates.nature_id = cat.default_nature_id;
+                  }
+                  setData({ ...data, ...updates });
+                }}>
                   <option value="">Nenhuma</option>
                   {incomeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </Field>
             </div>
+
+            <Field label="Plano de Contas (receita contábil)">
+              <Select value={data.account_id} onChange={e => setData({ ...data, account_id: e.target.value })}>
+                <option value="">— Sem conta contábil —</option>
+                {accounts.length === 0 && data.company_id && (
+                  <option value="" disabled>Empresa sem plano de contas — configure em Configurações → Plano de Contas</option>
+                )}
+                {accounts.map(a => (
+                  <option key={a.id} value={a.id}>{a.code} · {a.name}</option>
+                ))}
+              </Select>
+              <div className="text-[10px] text-stone-500 mt-1">
+                Conta analítica do plano de contas onde esta receita será classificada.
+              </div>
+            </Field>
+
             <Field label="Observações">
               <textarea value={data.notes ?? ''} onChange={e => setData({ ...data, notes: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-stone-300 text-sm focus:outline-none focus:border-ink rounded-sm min-h-[50px]" maxLength={2000} />

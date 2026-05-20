@@ -19,6 +19,9 @@ class CreateBankAccountDto {
   @IsOptional() @IsNumber() initial_balance?: number; // em centavos
   @IsOptional() @IsString() @MaxLength(300) description?: string;
   @IsOptional() @IsString() company_id?: string;
+  @IsOptional() @IsBoolean() is_player_wallet?: boolean;
+  @IsOptional() @IsNumber() fee_per_credit?: number;
+  @IsOptional() @IsNumber() fee_per_debit?: number;
 }
 
 class UpdateBankAccountDto {
@@ -29,6 +32,9 @@ class UpdateBankAccountDto {
   @IsOptional() @IsString() @MaxLength(30) account_number?: string;
   @IsOptional() @IsString() @MaxLength(300) description?: string;
   @IsOptional() @IsBoolean() is_active?: boolean;
+  @IsOptional() @IsBoolean() is_player_wallet?: boolean;
+  @IsOptional() @IsNumber() fee_per_credit?: number;
+  @IsOptional() @IsNumber() fee_per_debit?: number;
 }
 
 @Injectable()
@@ -38,12 +44,15 @@ export class BankAccountsService {
   async create(dto: CreateBankAccountDto, current: any) {
     const company_id = resolveCompanyForCreate(dto, current);
     const initial = BigInt(dto.initial_balance ?? 0);
+    const { fee_per_credit, fee_per_debit, initial_balance: _ib, ...rest } = dto as any;
     const account = await this.prisma.bankAccount.create({
       data: {
-        ...dto,
+        ...rest,
         company_id,
         initial_balance: initial,
         current_balance: initial,
+        ...(fee_per_credit !== undefined ? { fee_per_credit: BigInt(fee_per_credit) } : {}),
+        ...(fee_per_debit !== undefined ? { fee_per_debit: BigInt(fee_per_debit) } : {}),
       },
     });
     await this.audit.log('CREATE', 'BANK_ACCOUNT', account.id, current.id);
@@ -83,7 +92,11 @@ export class BankAccountsService {
 
   async update(id: string, dto: UpdateBankAccountDto, current: any) {
     await this.findOne(id, current);
-    const updated = await this.prisma.bankAccount.update({ where: { id }, data: dto });
+    const { fee_per_credit, fee_per_debit, ...rest } = dto as any;
+    const data: any = { ...rest };
+    if (fee_per_credit !== undefined) data.fee_per_credit = BigInt(fee_per_credit);
+    if (fee_per_debit !== undefined) data.fee_per_debit = BigInt(fee_per_debit);
+    const updated = await this.prisma.bankAccount.update({ where: { id }, data });
     await this.audit.log('UPDATE', 'BANK_ACCOUNT', id, current.id);
     return serializeBigInt(updated);
   }

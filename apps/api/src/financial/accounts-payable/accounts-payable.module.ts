@@ -36,6 +36,13 @@ class CreateAccountPayableDto {
   @IsOptional() @IsBoolean() generates_pis_cofins_credit?: boolean;
   /** Quando true, aceita criar mesmo havendo duplicata (registra como duplicate_of). */
   @IsOptional() @IsBoolean() force_duplicate?: boolean;
+  /** Serviço tomado de PJ — aplica retenções federais (CSRF: IRRF+CSLL+PIS+COFINS). */
+  @IsOptional() @IsBoolean() is_service_from_pj?: boolean;
+  /** Overrides manuais de retenção (em centavos). Se ausentes, calculados automaticamente quando is_service_from_pj=true. */
+  @IsOptional() @IsNumber() @Min(0) irrf_retained?: number;
+  @IsOptional() @IsNumber() @Min(0) csll_retained?: number;
+  @IsOptional() @IsNumber() @Min(0) pis_retained?: number;
+  @IsOptional() @IsNumber() @Min(0) cofins_retained?: number;
 }
 
 class UpdateAccountPayableDto {
@@ -52,6 +59,30 @@ class UpdateAccountPayableDto {
   @IsOptional() @IsString() category_id?: string;
   @IsOptional() @IsString() nature_id?: string;
   @IsOptional() @IsString() account_id?: string;
+  @IsOptional() @IsBoolean() is_deductible_expense?: boolean;
+  @IsOptional() @IsBoolean() generates_pis_cofins_credit?: boolean;
+  @IsOptional() @IsBoolean() is_service_from_pj?: boolean;
+  @IsOptional() @IsNumber() @Min(0) irrf_retained?: number;
+  @IsOptional() @IsNumber() @Min(0) csll_retained?: number;
+  @IsOptional() @IsNumber() @Min(0) pis_retained?: number;
+  @IsOptional() @IsNumber() @Min(0) cofins_retained?: number;
+}
+
+// Alíquotas CSRF (Lei 9.430/96 + IN RFB 459/04)
+const CSRF_RATES = { irrf: 0.015, csll: 0.010, pis: 0.0065, cofins: 0.030 };
+
+/**
+ * Calcula retenções federais sobre um valor bruto (em centavos).
+ * Total CSRF = 6,15% aplicado sobre o bruto, distribuído nas 4 alíquotas.
+ */
+function computeCsrfRetentions(grossCents: bigint) {
+  const g = Number(grossCents);
+  return {
+    irrf:   BigInt(Math.round(g * CSRF_RATES.irrf)),
+    csll:   BigInt(Math.round(g * CSRF_RATES.csll)),
+    pis:    BigInt(Math.round(g * CSRF_RATES.pis)),
+    cofins: BigInt(Math.round(g * CSRF_RATES.cofins)),
+  };
 }
 
 class PayDto {
@@ -114,6 +145,59 @@ export class AccountsPayableService {
     if (!nature.is_active) {
       throw new BadRequestException('Esta natureza está inativa. Selecione outra.');
     }
+  }
+
+  /**
+   * Dado um ChartOfAccount, retorna uma FinancialNature compartilhada
+   * (por dre_section, não por conta individual). A granularidade fica no
+   * `account_id`; a `nature_id` carrega só a classificação DRE.
+   *
+   * Mapping por código:
+   *   3.1.*               → Custo Operacional
+   *   3.2.* / 3.4.*       → Despesa Operacional
+   *   3.3.*               → Despesa Não Operacional
+   *   3.5.* / 3.6.*       → Despesa Financeira
+   *   5.1.05 / 5.1.06     → Imposto sobre Lucro
+   *   5.M.* (auto marcas) → Despesa Operacional (default)
+   *   demais 3.* / 5.*    → Despesa Operacional (fallback)
+   */
+  private async ensureNatureForAccount(accountId: string, companyId: string) {
+    const account = await this.prisma.chartOfAccount.findUnique({ where: { id: accountId } });
+    if (!account || account.metadeleted) return null;
+    if (account.company_id !== companyId) return null;
+    if (account.type !== 'EXPENSE') return null;
+
+    const code = account.code;
+    let section: 'CUSTO_OPERACIONAL' | 'DESPESA_OPERACIONAL' | 'DESPESA_NAO_OPERACIONAL' | 'DESPESA_FINANCEIRA' | 'IMPOSTO_LUCRO' = 'DESPESA_OPERACIONAL';
+    let nameSuggested = 'Despesa Operacional';
+    if (code.startsWith('3.1')) { section = 'CUSTO_OPERACIONAL'; nameSuggested = 'Custo Operacional'; }
+    else if (code.startsWith('3.3')) { section = 'DESPESA_NAO_OPERACIONAL'; nameSuggested = 'Despesa Não Operacional'; }
+    else if (code.startsWith('3.5') || code.startsWith('3.6')) { section = 'DESPESA_FINANCEIRA'; nameSuggested = 'Despesa Financeira'; }
+    else if (code.startsWith('5.1.05') || code.startsWith('5.1.06')) { section = 'IMPOSTO_LUCRO'; nameSuggested = 'Imposto sobre Lucro'; }
+
+    // Procura nature compartilhada por (company, type, dre_section).
+    // Se houver várias, prefere a default do sistema (is_default=true).
+    const existing = await this.prisma.financialNature.findFirst({
+      where: {
+        company_id: companyId,
+        type: NatureType.DESPESA,
+        dre_section: section as any,
+        is_active: true,
+        metadeleted: false,
+      },
+      orderBy: [{ is_default: 'desc' }, { created_at: 'asc' }],
+    });
+    if (existing) return existing;
+
+    return this.prisma.financialNature.create({
+      data: {
+        name: nameSuggested,
+        type: NatureType.DESPESA,
+        dre_section: section as any,
+        description: `Auto-criada a partir de classificação DRE.`,
+        company_id: companyId,
+      },
+    });
   }
 
   /**
@@ -180,6 +264,12 @@ export class AccountsPayableService {
     const company_id = resolveCompanyForCreate(dto, current);
 
     const contactData = await this.resolveContact(dto.contact_id, company_id);
+    // Se vier account_id mas não nature_id, deriva/cria a natureza a partir
+    // da conta contábil (link plano de contas → DRE).
+    if (!dto.nature_id && dto.account_id) {
+      const nature = await this.ensureNatureForAccount(dto.account_id, company_id);
+      if (nature) dto.nature_id = nature.id;
+    }
     await this.validateNature(dto.nature_id, company_id);
 
     const supplier_doc = contactData.supplier_doc ?? dto.supplier_doc;
@@ -227,6 +317,17 @@ export class AccountsPayableService {
     if (dto.is_deductible_expense !== undefined) data.is_deductible_expense = dto.is_deductible_expense;
     if (dto.generates_pis_cofins_credit !== undefined) data.generates_pis_cofins_credit = dto.generates_pis_cofins_credit;
 
+    // Retenções CSRF (serviços PJ→PJ): se flag ligada e usuário não forneceu
+    // override manual, calcula 1,5% IRRF + 1% CSLL + 0,65% PIS + 3% COFINS.
+    if (dto.is_service_from_pj) {
+      data.is_service_from_pj = true;
+      const auto = computeCsrfRetentions(amountBig);
+      data.irrf_retained   = dto.irrf_retained   !== undefined ? BigInt(dto.irrf_retained)   : auto.irrf;
+      data.csll_retained   = dto.csll_retained   !== undefined ? BigInt(dto.csll_retained)   : auto.csll;
+      data.pis_retained    = dto.pis_retained    !== undefined ? BigInt(dto.pis_retained)    : auto.pis;
+      data.cofins_retained = dto.cofins_retained !== undefined ? BigInt(dto.cofins_retained) : auto.cofins;
+    }
+
     const payable = await this.prisma.accountPayable.create({
       data,
       include: {
@@ -239,7 +340,8 @@ export class AccountsPayableService {
   }
 
   async findAll(filters: any, current: any) {
-    const where = buildTenantWhere(current, {}, { allowOwner: false });
+    // OWNER (gestor de marca) vê só contas vinculadas às marcas dele
+    const where = buildTenantWhere(current, {}, { allowOwner: true, ownerScope: 'brand' });
     if (filters.description) where.description = { contains: filters.description, mode: 'insensitive' };
     if (filters.supplier_name) where.supplier_name = { contains: filters.supplier_name, mode: 'insensitive' };
     if (filters.contact_id) where.contact_id = filters.contact_id;
@@ -285,7 +387,7 @@ export class AccountsPayableService {
       },
     });
     if (!p || p.metadeleted) throw new NotFoundException('Conta não encontrada.');
-    assertTenantAccess(p, current);
+    assertTenantAccess(p, current, { allowOwner: true, ownerScope: 'brand' });
     return serializeBigInt(p);
   }
 
@@ -295,6 +397,11 @@ export class AccountsPayableService {
       throw new BadRequestException('Conta já paga não pode ser editada. Cancele o pagamento primeiro.');
     }
 
+    // Auto-deriva nature_id a partir do account_id se nature não informada
+    if ((!dto.nature_id || dto.nature_id === '') && dto.account_id) {
+      const nature = await this.ensureNatureForAccount(dto.account_id, existing.company_id);
+      if (nature) dto.nature_id = nature.id;
+    }
     if (dto.nature_id !== undefined && dto.nature_id !== '') {
       await this.validateNature(dto.nature_id, existing.company_id);
     }
@@ -310,6 +417,8 @@ export class AccountsPayableService {
     if (dto.nature_id !== undefined) data.nature_id = dto.nature_id || null;
     if (dto.account_id !== undefined) data.account_id = dto.account_id || null;
     if (dto.document_number !== undefined) data.document_number = dto.document_number;
+    if (dto.is_deductible_expense !== undefined) data.is_deductible_expense = dto.is_deductible_expense;
+    if (dto.generates_pis_cofins_credit !== undefined) data.generates_pis_cofins_credit = dto.generates_pis_cofins_credit;
 
     if (dto.contact_id !== undefined) {
       if (dto.contact_id === '' || dto.contact_id === null) {
@@ -325,6 +434,27 @@ export class AccountsPayableService {
     } else {
       if (dto.supplier_name !== undefined) data.supplier_name = dto.supplier_name;
       if (dto.supplier_doc !== undefined) data.supplier_doc = dto.supplier_doc;
+    }
+
+    // Retenções CSRF: recalcula sempre que mudar o flag, o valor bruto, ou
+    // o usuário enviar override manual.
+    const willBePj = dto.is_service_from_pj !== undefined ? dto.is_service_from_pj : existing.is_service_from_pj;
+    const newAmount = data.amount ?? BigInt(existing.amount);
+    if (dto.is_service_from_pj !== undefined) {
+      data.is_service_from_pj = dto.is_service_from_pj;
+    }
+    if (willBePj) {
+      const auto = computeCsrfRetentions(newAmount);
+      data.irrf_retained   = dto.irrf_retained   !== undefined ? BigInt(dto.irrf_retained)   : (dto.amount !== undefined || dto.is_service_from_pj === true ? auto.irrf   : BigInt(existing.irrf_retained));
+      data.csll_retained   = dto.csll_retained   !== undefined ? BigInt(dto.csll_retained)   : (dto.amount !== undefined || dto.is_service_from_pj === true ? auto.csll   : BigInt(existing.csll_retained));
+      data.pis_retained    = dto.pis_retained    !== undefined ? BigInt(dto.pis_retained)    : (dto.amount !== undefined || dto.is_service_from_pj === true ? auto.pis    : BigInt(existing.pis_retained));
+      data.cofins_retained = dto.cofins_retained !== undefined ? BigInt(dto.cofins_retained) : (dto.amount !== undefined || dto.is_service_from_pj === true ? auto.cofins : BigInt(existing.cofins_retained));
+    } else if (dto.is_service_from_pj === false) {
+      // Desligou a flag: zera as retenções
+      data.irrf_retained = 0n;
+      data.csll_retained = 0n;
+      data.pis_retained = 0n;
+      data.cofins_retained = 0n;
     }
 
     const updated = await this.prisma.accountPayable.update({
@@ -363,8 +493,17 @@ export class AccountsPayableService {
       throw new BadRequestException('Conta bancária não pertence à mesma empresa.');
     }
 
-    const paid_amount = BigInt(dto.paid_amount ?? Number(payable.amount));
-    const isPartial = paid_amount < BigInt(payable.amount);
+    // Quando há retenções CSRF (PJ→PJ), o valor LÍQUIDO efetivamente
+    // transferido = bruto - (IRRF + CSLL + PIS + COFINS). É esse o valor
+    // padrão de paid_amount, porque é o que sai do banco para o fornecedor.
+    const totalRetained =
+      BigInt(payable.irrf_retained ?? 0) +
+      BigInt(payable.csll_retained ?? 0) +
+      BigInt(payable.pis_retained ?? 0) +
+      BigInt(payable.cofins_retained ?? 0);
+    const netAmount = BigInt(payable.amount) - totalRetained;
+    const paid_amount = BigInt(dto.paid_amount ?? Number(netAmount));
+    const isPartial = paid_amount < netAmount;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.transaction.create({
@@ -423,13 +562,14 @@ export class AccountsPayableController {
     return this.service.create(dto, user);
   }
 
-  @Profiles(Profile.ADMIN, Profile.MANAGER)
+  // OWNER vê só contas das suas marcas (escopado no service)
+  @Profiles(Profile.ADMIN, Profile.MANAGER, Profile.OWNER)
   @Get()
   findAll(@Query() q: any, @CurrentUser() user: any) {
     return this.service.findAll(q, user);
   }
 
-  @Profiles(Profile.ADMIN, Profile.MANAGER)
+  @Profiles(Profile.ADMIN, Profile.MANAGER, Profile.OWNER)
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: any) {
     return this.service.findOne(id, user);

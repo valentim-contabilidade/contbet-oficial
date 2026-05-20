@@ -13,7 +13,11 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { ProfilesGuard, Profiles, CurrentUser } from '../../auth/current-user.decorator';
 import { buildTenantWhere, assertTenantAccess, resolveCompanyForCreate } from '../tenant.helper';
 import { serializeBigInt } from '../money.helper';
-import { DEFAULT_NATURES, seedDefaultNaturesForCompany } from './default-natures';
+import {
+  DEFAULT_NATURES,
+  seedDefaultNaturesForCompany,
+  migrateLei14790ForCompany,
+} from './default-natures';
 
 class CreateNatureDto {
   @IsString() @MinLength(2) @MaxLength(100) name: string;
@@ -152,6 +156,38 @@ export class FinancialNaturesService {
     };
   }
 
+  /**
+   * Migra empresas legadas para o desdobramento completo das destinações da
+   * Lei 14.790 (Manual SPA/MF 08/05/2026): renomeia a natureza antiga para
+   * "Lei 14.790 — DARF Conta Única do Tesouro" preservando ID, cria as 3
+   * novas (Entidades Privadas, Educação, Direitos de Imagem), reordena
+   * PIS/COFINS e ISS, e sincroniza o plano de contas com sub-contas DARF
+   * e grupo de repasses não-DARF.
+   */
+  async migrateLei14790(dto: SeedDto, current: any) {
+    if (current.profile === Profile.MANAGER && current.company_id !== dto.company_id) {
+      throw new BadRequestException('Sem acesso a esta empresa.');
+    }
+
+    const company = await this.prisma.company.findUnique({ where: { id: dto.company_id } });
+    if (!company) throw new BadRequestException('Empresa inválida.');
+
+    const result = await migrateLei14790ForCompany(this.prisma, dto.company_id);
+    await this.audit.log('MIGRATE_LEI14790', 'FINANCIAL_NATURE', undefined, current.id, result);
+
+    const parts: string[] = [];
+    if (result.renamed_legacy_nature) parts.push('natureza antiga renomeada para "DARF Conta Única do Tesouro"');
+    if (result.natures_created > 0) parts.push(`${result.natures_created} natureza(s) Lei 14.790 criada(s)`);
+    if (result.natures_renumbered > 0) parts.push(`${result.natures_renumbered} natureza(s) reordenada(s)`);
+    if (result.chart_accounts_created > 0) parts.push(`${result.chart_accounts_created} conta(s) contábil(is) criada(s)`);
+    return {
+      ...result,
+      message: parts.length > 0
+        ? parts.join('; ') + '.'
+        : 'Nada a migrar — empresa já está atualizada.',
+    };
+  }
+
   private validateDreSection(type: NatureType, section: DreSection) {
     const receitaSections: DreSection[] = [
       DreSection.RECEITA_OPERACIONAL,
@@ -220,6 +256,12 @@ export class FinancialNaturesController {
   @Post('seed-defaults')
   seed(@Body() dto: SeedDto, @CurrentUser() user: any) {
     return this.service.seedDefaults(dto, user);
+  }
+
+  @Profiles(Profile.ADMIN, Profile.MANAGER)
+  @Post('migrate-lei14790')
+  migrateLei14790(@Body() dto: SeedDto, @CurrentUser() user: any) {
+    return this.service.migrateLei14790(dto, user);
   }
 }
 

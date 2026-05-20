@@ -193,7 +193,7 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <PageHeader title="Lançamentos" subtitle="Financeiro · Movimentações" action={<NewButton onClick={() => setModal({ type: 'create' })} label="Novo lançamento" />} />
+      <PageHeader title="Caixa e Bancos" subtitle="Movimentações em contas bancárias — entradas e saídas realizadas" action={<NewButton onClick={() => setModal({ type: 'create' })} label="Novo lançamento" />} />
       <FilterBar
         filters={[
           { key: 'description', label: 'Descrição' },

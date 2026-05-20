@@ -7,8 +7,20 @@ import { Profile } from '@prisma/client';
  * - MANAGER: só vê dados da própria empresa
  * - OWNER: bloqueado em recursos financeiros (são gerenciais, não operacionais)
  */
+/**
+ * Resolve a lista de marcas que o usuário OWNER pode acessar.
+ * Prioridade:
+ *   1. `current.brand_ids` se já vier preenchido (vinculo N:N via BrandUser)
+ *   2. fallback para `current.brand_id` (compatibilidade — marca primária única)
+ */
+export function ownerBrandIds(current: { brand_id: string | null; brand_ids?: string[] | null }): string[] {
+  if (current.brand_ids && current.brand_ids.length > 0) return current.brand_ids;
+  if (current.brand_id) return [current.brand_id];
+  return [];
+}
+
 export function buildTenantWhere(
-  current: { profile: Profile; company_id: string | null; brand_id: string | null },
+  current: { profile: Profile; company_id: string | null; brand_id: string | null; brand_ids?: string[] | null },
   baseWhere: any = {},
   options: { allowOwner?: boolean; ownerScope?: 'company' | 'brand' } = {},
 ) {
@@ -29,7 +41,15 @@ export function buildTenantWhere(
     }
     where.company_id = current.company_id;
     if (options.ownerScope === 'brand') {
-      where.brand_id = current.brand_id;
+      const brandIds = ownerBrandIds(current);
+      if (brandIds.length === 0) {
+        // Sem nenhuma marca atribuída → não vê nada (fail-safe)
+        where.brand_id = '__none__';
+      } else if (brandIds.length === 1) {
+        where.brand_id = brandIds[0];
+      } else {
+        where.brand_id = { in: brandIds };
+      }
     }
     return where;
   }
@@ -42,7 +62,7 @@ export function buildTenantWhere(
  */
 export function assertTenantAccess(
   entity: { company_id: string; brand_id?: string | null },
-  current: { profile: Profile; company_id: string | null; brand_id: string | null },
+  current: { profile: Profile; company_id: string | null; brand_id: string | null; brand_ids?: string[] | null },
   options: { allowOwner?: boolean; ownerScope?: 'company' | 'brand' } = {},
 ) {
   if (current.profile === Profile.ADMIN) return;
@@ -61,8 +81,11 @@ export function assertTenantAccess(
     if (entity.company_id !== current.company_id) {
       throw new ForbiddenException();
     }
-    if (options.ownerScope === 'brand' && entity.brand_id !== current.brand_id) {
-      throw new ForbiddenException();
+    if (options.ownerScope === 'brand') {
+      const allowed = ownerBrandIds(current);
+      if (!entity.brand_id || !allowed.includes(entity.brand_id)) {
+        throw new ForbiddenException();
+      }
     }
     return;
   }

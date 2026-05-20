@@ -6,7 +6,7 @@ import { Plus, Edit2, Trash2, DollarSign, Calendar, Layers, Receipt, ScanLine } 
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatBRL, formatBRLInput, parseInputToCents, formatDate, todayInput, formatDocument } from '@/lib/format';
-import type { AccountPayable, Company, Brand, FinancialCategory, BankAccount } from '@/lib/types';
+import type { AccountPayable, Company, Brand, FinancialCategory, BankAccount, ChartOfAccount } from '@/lib/types';
 import type { FinancialNature } from '@/lib/nature-types';
 import { dreSectionShortLabels, dreSectionColors } from '@/lib/nature-format';
 import { PageHeader, FilterBar, Pagination, Modal, ConfirmDeleteModal, Field, Input, Select, PrimaryButton, SecondaryButton, NewButton, StatusBadge } from '@/components/ui';
@@ -36,17 +36,38 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
     brand_id: initial?.brand_id ?? '',
     category_id: initial?.category_id ?? '',
     nature_id: (initial as any)?.nature_id ?? '',
+    account_id: (initial as any)?.account_id ?? '',
     notes: initial?.notes ?? '',
     is_deductible_expense: initial?.is_deductible_expense ?? true,
     generates_pis_cofins_credit: initial?.generates_pis_cofins_credit ?? false,
+    is_service_from_pj: (initial as any)?.is_service_from_pj ?? false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [accounts, setAccounts] = useState<ChartOfAccount[]>([]);
 
   const visibleCompanies = current.profile === 'MANAGER' ? companies.filter(c => c.id === current.company_id) : companies;
   const filteredBrands = brands.filter(b => b.company_id === data.company_id);
   const expenseCategories = categories.filter(c => c.company_id === data.company_id && c.type === 'EXPENSE');
+
+  // Carrega o plano de contas analítico (folhas) da empresa selecionada
+  useEffect(() => {
+    if (!data.company_id) { setAccounts([]); return; }
+    api.get('/financial/chart-of-accounts', {
+      params: { company_id: data.company_id, page: 1 },
+    }).then(r => {
+      const all: ChartOfAccount[] = r.data.data ?? [];
+      // Mantém apenas contas analíticas (sem filhas) para evitar lançar em sintéticas
+      const codeSet = new Set(all.map(a => a.code));
+      const isLeaf = (a: ChartOfAccount) =>
+        !all.some(b => b.code !== a.code && b.code.startsWith(a.code + '.'));
+      const expenses = all
+        .filter(a => a.type === 'EXPENSE' && a.is_active && isLeaf(a))
+        .sort((a, b) => a.code.localeCompare(b.code, 'pt-BR'));
+      setAccounts(expenses);
+    }).catch(() => setAccounts([]));
+  }, [data.company_id]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +78,7 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
     if (!data.amount || parseInputToCents(data.amount) < 1) errs.amount = 'Valor obrigatório';
     if (!data.issue_date) errs.issue_date = 'Data de emissão obrigatória';
     if (!data.due_date) errs.due_date = 'Vencimento obrigatório';
-    if (!isEdit && !data.nature_id) errs.nature_id = 'Natureza contábil obrigatória';
+    if (!isEdit && !data.nature_id && !data.account_id) errs.nature_id = 'Selecione natureza contábil ou plano de contas';
     setErrors(errs);
 
     if (Object.keys(errs).length === 0) {
@@ -73,8 +94,10 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
           brand_id: data.brand_id || undefined,
           category_id: data.category_id || undefined,
           nature_id: data.nature_id || undefined,
+          account_id: data.account_id || undefined,
           is_deductible_expense: data.is_deductible_expense,
           generates_pis_cofins_credit: data.generates_pis_cofins_credit,
+          is_service_from_pj: data.is_service_from_pj,
         };
         if (data.contact_id) {
           payload.contact_id = data.contact_id;
@@ -95,7 +118,7 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
       {/* === LINHA 1: Empresa (se for create) === */}
       {!isEdit && (
         <Field label="Empresa" required error={errors.company_id}>
-          <Select value={data.company_id} onChange={e => setData({ ...data, company_id: e.target.value, brand_id: '', category_id: '', nature_id: '' })}
+          <Select value={data.company_id} onChange={e => setData({ ...data, company_id: e.target.value, brand_id: '', category_id: '', nature_id: '', account_id: '' })}
             disabled={current.profile === 'MANAGER'}>
             <option value="">Selecione...</option>
             {visibleCompanies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -130,16 +153,21 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
         <Field label={
           <span className="flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-amber-700" />
-            Natureza Contábil (DRE)
+            Natureza Contábil (DRE){data.account_id ? <span className="text-[10px] text-stone-500 ml-1">— auto</span> : null}
           </span>
-        } required error={errors.nature_id}>
+        } required={!data.account_id} error={errors.nature_id}>
           <NatureSelect
             companyId={data.company_id}
             type="DESPESA"
             value={data.nature_id || null}
             onChange={(natureId) => setData({ ...data, nature_id: natureId ?? '' })}
-            required
+            required={!data.account_id}
           />
+          {data.account_id && !data.nature_id && (
+            <div className="text-[10px] text-emerald-700 mt-1">
+              ✓ Será derivada automaticamente do plano de contas selecionado.
+            </div>
+          )}
         </Field>
       </div>
 
@@ -191,12 +219,36 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
                 </Select>
               </Field>
               <Field label="Categoria (visual, opcional)">
-                <Select value={data.category_id} onChange={e => setData({ ...data, category_id: e.target.value })}>
+                <Select value={data.category_id} onChange={e => {
+                  const newCatId = e.target.value;
+                  const cat = expenseCategories.find(c => c.id === newCatId);
+                  // Auto-preenche a Natureza se a categoria tiver natureza padrão e o campo Natureza estiver vazio
+                  const updates: any = { category_id: newCatId };
+                  if (cat?.default_nature_id && !data.nature_id) {
+                    updates.nature_id = cat.default_nature_id;
+                  }
+                  setData({ ...data, ...updates });
+                }}>
                   <option value="">Nenhuma</option>
                   {expenseCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </Field>
             </div>
+
+            <Field label="Plano de Contas (despesa contábil)">
+              <Select value={data.account_id} onChange={e => setData({ ...data, account_id: e.target.value })}>
+                <option value="">— Sem conta contábil —</option>
+                {accounts.length === 0 && data.company_id && (
+                  <option value="" disabled>Empresa sem plano de contas — configure em Configurações → Plano de Contas</option>
+                )}
+                {accounts.map(a => (
+                  <option key={a.id} value={a.id}>{a.code} · {a.name}</option>
+                ))}
+              </Select>
+              <div className="text-[10px] text-stone-500 mt-1">
+                Conta analítica do plano de contas onde esta despesa será classificada. Quando importada de NF, é preenchida automaticamente.
+              </div>
+            </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <label className="flex items-start gap-2 p-2.5 bg-white border border-stone-200 rounded-sm cursor-pointer hover:bg-stone-50">
@@ -217,6 +269,42 @@ function PayableForm({ initial, current, companies, brands, categories, onSubmit
                 </div>
               </label>
             </div>
+
+            {/* === Retenções federais (CSRF) — serviços tomados de PJ === */}
+            <label className="flex items-start gap-2 p-2.5 bg-white border border-stone-200 rounded-sm cursor-pointer hover:bg-stone-50">
+              <input type="checkbox" checked={data.is_service_from_pj}
+                onChange={e => setData({ ...data, is_service_from_pj: e.target.checked })} className="mt-0.5" />
+              <div>
+                <div className="text-xs font-medium">Serviço tomado de PJ — aplicar retenções federais</div>
+                <div className="text-[10px] text-stone-600">CSRF: IRRF 1,5% + CSLL 1,0% + PIS 0,65% + COFINS 3,0% (total 6,15%)</div>
+              </div>
+            </label>
+
+            {data.is_service_from_pj && (() => {
+              const grossCents = parseInputToCents(data.amount) || 0;
+              const irrf   = Math.round(grossCents * 0.015);
+              const csll   = Math.round(grossCents * 0.010);
+              const pis    = Math.round(grossCents * 0.0065);
+              const cofins = Math.round(grossCents * 0.030);
+              const totalRet = irrf + csll + pis + cofins;
+              const liquido = grossCents - totalRet;
+              return (
+                <div className="bg-amber-50 border border-amber-200 rounded-sm p-3 text-xs">
+                  <div className="font-medium text-amber-900 mb-2 uppercase tracking-wider text-[10px]">Preview das retenções</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                    <div><div className="text-stone-500 text-[10px]">IRRF (1,5%)</div><div className="font-mono">{formatBRL(irrf)}</div></div>
+                    <div><div className="text-stone-500 text-[10px]">CSLL (1,0%)</div><div className="font-mono">{formatBRL(csll)}</div></div>
+                    <div><div className="text-stone-500 text-[10px]">PIS (0,65%)</div><div className="font-mono">{formatBRL(pis)}</div></div>
+                    <div><div className="text-stone-500 text-[10px]">COFINS (3,0%)</div><div className="font-mono">{formatBRL(cofins)}</div></div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-amber-200">
+                    <div><div className="text-stone-500 text-[10px]">Bruto (NF)</div><div className="font-mono">{formatBRL(grossCents)}</div></div>
+                    <div><div className="text-stone-500 text-[10px]">(−) Retido</div><div className="font-mono text-red-700">−{formatBRL(totalRet)}</div></div>
+                    <div><div className="text-stone-500 text-[10px]">Líquido a pagar</div><div className="font-mono font-medium text-emerald-700">{formatBRL(liquido)}</div></div>
+                  </div>
+                </div>
+              );
+            })()}
 
             <Field label="Observações">
               <textarea value={data.notes ?? ''} onChange={e => setData({ ...data, notes: e.target.value })}
@@ -244,7 +332,13 @@ function PayModal({ payable, accounts, onSubmit, onCancel }: {
 }) {
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? '');
   const [paymentDate, setPaymentDate] = useState(todayInput());
-  const [paidAmount, setPaidAmount] = useState(formatBRLInput(parseInt(String(payable.amount))));
+  const totalRetained =
+    Number((payable as any).irrf_retained ?? 0) +
+    Number((payable as any).csll_retained ?? 0) +
+    Number((payable as any).pis_retained ?? 0) +
+    Number((payable as any).cofins_retained ?? 0);
+  const netAmount = Number(payable.amount) - totalRetained;
+  const [paidAmount, setPaidAmount] = useState(formatBRLInput(netAmount));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -268,6 +362,13 @@ function PayModal({ payable, accounts, onSubmit, onCancel }: {
       <div className="bg-stone-50 border border-stone-200 rounded-sm p-3 text-sm">
         <div className="font-medium">{payable.description}</div>
         <div className="text-stone-600 text-xs mt-1">Total: {formatBRL(payable.amount)} · Vencimento: {formatDate(payable.due_date)}</div>
+        {totalRetained > 0 && (
+          <div className="mt-2 pt-2 border-t border-stone-200 text-xs grid grid-cols-3 gap-2">
+            <div>Bruto: <span className="font-mono">{formatBRL(payable.amount)}</span></div>
+            <div>(−) Retido CSRF: <span className="font-mono text-red-700">−{formatBRL(totalRetained)}</span></div>
+            <div>Líquido: <span className="font-mono font-medium text-emerald-700">{formatBRL(netAmount)}</span></div>
+          </div>
+        )}
       </div>
       <Field label="Conta bancária" required>
         <Select value={accountId} onChange={e => setAccountId(e.target.value)}>
@@ -451,7 +552,22 @@ export default function AccountsPayablePage() {
                         <span className="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-sm border border-amber-200">⚠ Sem natureza</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">{formatBRL(p.amount)}</td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {formatBRL(p.amount)}
+                      {(p as any).is_service_from_pj && (() => {
+                        const ret = Number((p as any).irrf_retained ?? 0)
+                          + Number((p as any).csll_retained ?? 0)
+                          + Number((p as any).pis_retained ?? 0)
+                          + Number((p as any).cofins_retained ?? 0);
+                        if (ret === 0) return null;
+                        const liq = Number(p.amount) - ret;
+                        return (
+                          <div className="text-[10px] text-stone-500 mt-0.5" title={`Retido: ${formatBRL(ret)} (CSRF)`}>
+                            líq. <span className="text-emerald-700 font-medium">{formatBRL(liq)}</span>
+                          </div>
+                        );
+                      })()}
+                    </td>
                     <td className="px-4 py-3 text-stone-700"><Calendar className="w-3.5 h-3.5 inline mr-1 text-stone-400" />{formatDate(p.due_date)}</td>
                     <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">

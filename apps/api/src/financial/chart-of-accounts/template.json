@@ -1,0 +1,4692 @@
+[
+  {
+    "code": "1",
+    "name": "ATIVO",
+    "isS": true,
+    "grau": 1,
+    "parent_code": null
+  },
+  {
+    "code": "1.1",
+    "name": "ATIVO CIRCULANTE",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "1"
+  },
+  {
+    "code": "1.1.1",
+    "name": "DISPONÍVEL",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.1"
+  },
+  {
+    "code": "1.1.1.01",
+    "name": "CAIXA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.1"
+  },
+  {
+    "code": "1.1.1.01.0001",
+    "name": "CAIXA GERAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.1.01"
+  },
+  {
+    "code": "1.1.1.01.0002",
+    "name": "FUNDO FIXO DE CAIXA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.1.01"
+  },
+  {
+    "code": "1.1.1.02",
+    "name": "BANCOS CONTA MOVIMENTO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.1"
+  },
+  {
+    "code": "1.1.1.03",
+    "name": "APLICAÇÕES FINANCEIRAS LIQUIDEZ IMEDIATA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.1"
+  },
+  {
+    "code": "1.1.2",
+    "name": "CLIENTES",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.1"
+  },
+  {
+    "code": "1.1.2.01",
+    "name": "DUPLICATAS A RECEBER",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.2"
+  },
+  {
+    "code": "1.1.2.02",
+    "name": "(-) DUPLICATAS DESCONTADAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.2"
+  },
+  {
+    "code": "1.1.2.03",
+    "name": "CRÉDITOS VENCIDOS E NÃO LIQUIDADOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.2"
+  },
+  {
+    "code": "1.1.3",
+    "name": "OUTROS CRÉDITOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.1"
+  },
+  {
+    "code": "1.1.3.01",
+    "name": "BANCOS CONTA VINCULADA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.02",
+    "name": "TÍTULOS A RECEBER",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.02.0001",
+    "name": "GATWAY API - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.02"
+  },
+  {
+    "code": "1.1.3.02.0002",
+    "name": "GATWAY API - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.02"
+  },
+  {
+    "code": "1.1.3.02.0003",
+    "name": "GATWAY API - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.02"
+  },
+  {
+    "code": "1.1.3.03",
+    "name": "ADIANTAMENTO DE SÓCIO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.04",
+    "name": "DIREITOS A RECEBER",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.04.0001",
+    "name": "DIREITOS A RECEBER DOS SOCIOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.04"
+  },
+  {
+    "code": "1.1.3.05",
+    "name": "ADIANTAMENTOS A FORNECEDORES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.06",
+    "name": "ADIANTAMENTO A EMPREGADOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.07",
+    "name": "EMPRÉSTIMO A EMPRESAS LIGADAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.07.0001",
+    "name": "EJFS NEGOCIOS E PARTICIPAÇÕES LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.07"
+  },
+  {
+    "code": "1.1.3.07.0002",
+    "name": "ANSPACE INSTITUIÇÃO DE PAGAMENTO LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.07"
+  },
+  {
+    "code": "1.1.3.08",
+    "name": "TRIBUTOS A RECUPERAR/COMPENSAR",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.08.0001",
+    "name": "IPI A RECUPERAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0002",
+    "name": "ICMS A RECUPERAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0003",
+    "name": "IRRF A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0004",
+    "name": "IMPOSTO DE RENDA PAGO A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0005",
+    "name": "CONTRIBUIÇÃO SOCIAL PAGA A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0006",
+    "name": "TRIBUTOS PAGOS A MAIOR OU INDEVIDAMENTE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0007",
+    "name": "CONTRIBUIÇÃO SOCIAL RETIDO A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0008",
+    "name": "COFINS RETIDO A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0009",
+    "name": "PIS RETIDO A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0010",
+    "name": "INSS A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0011",
+    "name": "BÔNUS DE ADIMPLÊNCIA FISCAL A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0012",
+    "name": "COFINS A RECUPERAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0013",
+    "name": "PIS A RECUPERAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0014",
+    "name": "COFINS A RECUPERAR - CRÉDITO PRESUMIDO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0015",
+    "name": "PIS RECUPERAR - CRÉDITO PRESUMIDO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0016",
+    "name": "ISS A RECUPERAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0017",
+    "name": "COSIRF A COMPENSAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.08.0018",
+    "name": "REPASSE A RECUPERAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.08"
+  },
+  {
+    "code": "1.1.3.09",
+    "name": "JUROS SOBRE O CAPITAL PRÓPRIO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.3"
+  },
+  {
+    "code": "1.1.3.09.0001",
+    "name": "JUROS SOBRE O CAPITAL PRÓPRIO A RECEBER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.3.09"
+  },
+  {
+    "code": "1.1.4",
+    "name": "APLICAÇÕES FINANCEIRAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.1"
+  },
+  {
+    "code": "1.1.4.01",
+    "name": "APLICAÇÕES FINANCEIRAS REND. PREFIXADOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.4"
+  },
+  {
+    "code": "1.1.4.03",
+    "name": "AÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.4"
+  },
+  {
+    "code": "1.1.4.04",
+    "name": "DEBÊNTURES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.4"
+  },
+  {
+    "code": "1.1.4.04.0001",
+    "name": "VALOR NOMINAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.4.04"
+  },
+  {
+    "code": "1.1.4.04.0002",
+    "name": "(-) DESÁGIO A APROPRIAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.4.04"
+  },
+  {
+    "code": "1.1.5",
+    "name": "ESTOQUE",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.1"
+  },
+  {
+    "code": "1.1.5.01",
+    "name": "MERCADORIAS, PRODUTOS E INSUMOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.5"
+  },
+  {
+    "code": "1.1.5.01.0001",
+    "name": "MERCADORIAS PARA REVENDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0002",
+    "name": "MATÉRIA-PRIMA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0003",
+    "name": "MATERIAL DE ACONDICIONAMENTO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0004",
+    "name": "OUTROS MATERIAIS DE CONSUMO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0005",
+    "name": "PRODUTOS ACABADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0006",
+    "name": "PRODUTOS EM ELABORAÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0010",
+    "name": "OUTROS INSUMOS E SERVIÇOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0011",
+    "name": "APLICAÇÃO DE ENERGIA ELÉTRICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.01.0020",
+    "name": "FRETE S/ COMPRAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.01"
+  },
+  {
+    "code": "1.1.5.02",
+    "name": "ALMOXARIFADO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.5"
+  },
+  {
+    "code": "1.1.5.02.0001",
+    "name": "ALMOXARIFADO DE MANUTENÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.02"
+  },
+  {
+    "code": "1.1.5.02.0002",
+    "name": "ALMOXARIFADO ADMINISTRATIVO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.5.02"
+  },
+  {
+    "code": "1.1.5.03",
+    "name": "(-) PROVISÃO PARA AJUSTES DO ESTOQUE",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.5"
+  },
+  {
+    "code": "1.1.6",
+    "name": "DESPESAS A APROPRIAR",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.1"
+  },
+  {
+    "code": "1.1.6.01",
+    "name": "DESPESAS DE MESES SEGUINTES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.1.6"
+  },
+  {
+    "code": "1.1.6.01.0001",
+    "name": "PRÊMIOS DE SEGUROS A APROPRIAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.1.6.01.0002",
+    "name": "ASSINATURAS E ANUIDADES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.1.6.01.0003",
+    "name": "CAMAROTE SHOWS E EVENTOS LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.1.6.01.0004",
+    "name": "MUSICA VIVA LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.1.6.01.0005",
+    "name": "TIRULLIPA PRODUÇÕES LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.1.6.01.0006",
+    "name": "X1 AO VIVO CAMPEONATOS LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.1.6.01.0007",
+    "name": "MIDIA PRODUÇÕES LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.1.6.01"
+  },
+  {
+    "code": "1.2",
+    "name": "ATIVO NÃO-CIRCULANTE",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "1"
+  },
+  {
+    "code": "1.2.1",
+    "name": "ATIVO REALIZÁVEL A LONGO PRAZO",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.2"
+  },
+  {
+    "code": "1.2.1.01",
+    "name": "CLIENTES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.1"
+  },
+  {
+    "code": "1.2.1.02",
+    "name": "(-) DUPLICATAS DESCONTADAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.1"
+  },
+  {
+    "code": "1.2.1.03",
+    "name": "(-) CRÉDITOS VENCIDOS E NÃO LIQUIDADOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.1"
+  },
+  {
+    "code": "1.2.2",
+    "name": "OUTROS CRÉDITOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.2"
+  },
+  {
+    "code": "1.2.2.01",
+    "name": "TÍTULOS A RECEBER",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.01.0001",
+    "name": "BB CONSORCIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.2.01"
+  },
+  {
+    "code": "1.2.2.02",
+    "name": "BANCOS CONTA VINCULADA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.03",
+    "name": "CONTROLADORA, CONTROLADAS E COLIGADAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.04",
+    "name": "SÓCIOS, ADMINISTRADORES E PESSOAS LIGADA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.05",
+    "name": "APLICAÇÕES FINANCEIRAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.06",
+    "name": "DEPÓSITOS JUDICIAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.07",
+    "name": "EMPRÉSTIMOS COMPULSÓRIOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.08",
+    "name": "TRIBUTOS A RECUPERAR",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.09",
+    "name": "DESPESAS PAGAS ANTECIPADAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.2.10",
+    "name": "DEPÓSITOS POR INCENTIVOS FISCAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.2"
+  },
+  {
+    "code": "1.2.3",
+    "name": "INVESTIMENTOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.2"
+  },
+  {
+    "code": "1.2.3.01",
+    "name": "CONTROLADAS E COLIGADAS - EQUIV. PATRIM.",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.01.0001",
+    "name": "CONTROLADA A - VALOR PATRIMONIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.01"
+  },
+  {
+    "code": "1.2.3.01.0002",
+    "name": "CONTROLADA A - ÁGIO AQUISIÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.01"
+  },
+  {
+    "code": "1.2.3.01.0003",
+    "name": "(-) CONTROLADA A - AMORTIZAÇÃO DO ÁGIL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.01"
+  },
+  {
+    "code": "1.2.3.01.0004",
+    "name": "(-) CONTROLADA A - DESÁGIO NA AQUISIÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.01"
+  },
+  {
+    "code": "1.2.3.01.0005",
+    "name": "CONTROLADA A - AMORTIZAÇÃO DO DESÁGIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.01"
+  },
+  {
+    "code": "1.2.3.01.0006",
+    "name": "SPE PIXBET S C  DE LOTERIAS DO ESTADO DO PARANA LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.01"
+  },
+  {
+    "code": "1.2.3.02",
+    "name": "CONTROLADAS E COLIGADAS CUSTO CORRIGIDO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.03",
+    "name": "OUTRAS PARTICIPAÇÕES SOCIETÁRIAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.04",
+    "name": "PARTICIPAÇÕES POR INCENTIVOS FISCAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.04.0001",
+    "name": "FINOR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.04"
+  },
+  {
+    "code": "1.2.3.04.0002",
+    "name": "FINAM",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.04"
+  },
+  {
+    "code": "1.2.3.05",
+    "name": "IMÓVEIS NÃO DESTINADOS AO USO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.06",
+    "name": "OUTROS INVESTIMENTOS PERMANENTES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.06.0001",
+    "name": "OBJETOS DE ARTE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.06"
+  },
+  {
+    "code": "1.2.3.06.0002",
+    "name": "CAUÇÕES PERMANENTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.06"
+  },
+  {
+    "code": "1.2.3.07",
+    "name": "(-) PROVISÃO PARA PERDAS PERMANENTE",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.3"
+  },
+  {
+    "code": "1.2.3.07.0001",
+    "name": "(-) CONTROLADAS E COLIGADAS EQUI. PATRIM",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.07"
+  },
+  {
+    "code": "1.2.3.07.0002",
+    "name": "(-) CONTROLADAS COLIGADAS CUSTO CORRIGID",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.07"
+  },
+  {
+    "code": "1.2.3.07.0003",
+    "name": "(-) OUTRAS PARTICIPAÇÕES SOCIETÁRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.07"
+  },
+  {
+    "code": "1.2.3.07.0004",
+    "name": "(-) PARTICIPAÇÕES POR INCENTIVOS FISCAIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.07"
+  },
+  {
+    "code": "1.2.3.07.0005",
+    "name": "(-) IMÓVEIS NÃO DESTINADOS A USO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.07"
+  },
+  {
+    "code": "1.2.3.07.0006",
+    "name": "(-) OUTROS INVESTIMENTOS PERMANENTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.3.07"
+  },
+  {
+    "code": "1.2.4",
+    "name": "IMOBILIZADO",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.2"
+  },
+  {
+    "code": "1.2.4.01",
+    "name": "IMÓVEIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.01.0001",
+    "name": "TERRENOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.01"
+  },
+  {
+    "code": "1.2.4.01.0002",
+    "name": "CONSTRUÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.01"
+  },
+  {
+    "code": "1.2.4.02",
+    "name": "MÓVEIS E UTENSÍLIOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.02.0001",
+    "name": "MÓVEIS E UTENSÍLIOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.02"
+  },
+  {
+    "code": "1.2.4.03",
+    "name": "MÁQUINAS, EQUIPAMENTOS E FERRAMENTAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.03.0001",
+    "name": "MÁQUINAS E EQUIPAMENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.03"
+  },
+  {
+    "code": "1.2.4.04",
+    "name": "VEÍCULOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.04.0001",
+    "name": "VEÍCULOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.04"
+  },
+  {
+    "code": "1.2.4.05",
+    "name": "EQUIPAMENTO DE PROCESSAMENTO DE DADOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.05.0001",
+    "name": "COMPUTADORES E PERIFÉRICOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.05"
+  },
+  {
+    "code": "1.2.4.06",
+    "name": "IMOBILIZADO EM ANDAMENTO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.07",
+    "name": "(-) DEPRECIAÇÕES, AMORT. E EXAUS. ACUMUL",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.4"
+  },
+  {
+    "code": "1.2.4.07.0001",
+    "name": "(-) DEPRECIAÇÕES DE EDIFÍCIOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.07"
+  },
+  {
+    "code": "1.2.4.07.0002",
+    "name": "(-) DEPRECIAÇÕES DE MÓVEIS E UTENSÍLIOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.07"
+  },
+  {
+    "code": "1.2.4.07.0003",
+    "name": "(-) DEPRECIAÇÕES DE MÁQUINAS, EQUIP. FER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.07"
+  },
+  {
+    "code": "1.2.4.07.0004",
+    "name": "(-) DEPRECIAÇÕES DE VEÍCULOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.07"
+  },
+  {
+    "code": "1.2.4.07.0005",
+    "name": "(-) EXAUSTÕES E DEPREC. DE REC. NATURAIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.07"
+  },
+  {
+    "code": "1.2.4.07.0006",
+    "name": "(-) AMORTIZAÇÃO DE MARCAS, DIR. PATENTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.4.07"
+  },
+  {
+    "code": "1.2.5",
+    "name": "INTANGÍVEL",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.2"
+  },
+  {
+    "code": "1.2.5.01",
+    "name": "MARCAS, DIREITOS E LICENÇAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.5"
+  },
+  {
+    "code": "1.2.5.01.0001",
+    "name": "APORTE DE LICENÇA NACIONAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.5.01"
+  },
+  {
+    "code": "1.2.6",
+    "name": "(-) AMORTIZAÇÃO DE MARCAS, PATENTES E LICENÇAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "1.2"
+  },
+  {
+    "code": "1.2.6.01",
+    "name": "(-) AMORTIZAÇÃO DE LICENÇAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "1.2.6"
+  },
+  {
+    "code": "1.2.6.01.0001",
+    "name": "(-) AMORTIZAÇÃO APORTE CREDENCIAMENTO NACIONAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "1.2.6.01"
+  },
+  {
+    "code": "2",
+    "name": "PASSIVO",
+    "isS": true,
+    "grau": 1,
+    "parent_code": null
+  },
+  {
+    "code": "2.1",
+    "name": "PASSIVO CIRCULANTE",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "2"
+  },
+  {
+    "code": "2.1.1",
+    "name": "EMPRESTIMOS DE TERCEIROS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.1.1.01",
+    "name": "EMPRÉSTIMOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.02",
+    "name": "DIREITOS CREDITORIOS DE TERCEIROS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.02.0001",
+    "name": "DIREITOS CREDITORIOS DE TERCEIROS - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.02"
+  },
+  {
+    "code": "2.1.1.02.0002",
+    "name": "DIREITOS CREDITORIOS DE TERCEIROS - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.02"
+  },
+  {
+    "code": "2.1.1.02.0003",
+    "name": "DIREITOS CREDITORIOS DE TERCEIROS - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.02"
+  },
+  {
+    "code": "2.1.1.03",
+    "name": "APOSTAS EM ANDAMENTO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.03.0001",
+    "name": "APOSTAS CONFIRMADAS - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.03"
+  },
+  {
+    "code": "2.1.1.03.0002",
+    "name": "APOSTAS CONFIRMADAS - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.03"
+  },
+  {
+    "code": "2.1.1.03.0003",
+    "name": "APOSTAS CONFIRMADAS - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.03"
+  },
+  {
+    "code": "2.1.1.04",
+    "name": "(-) APOSTAS EM ANDAMENTO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.04.0001",
+    "name": "(-) APOSTAS EM ANDAMENTO - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.04"
+  },
+  {
+    "code": "2.1.1.04.0002",
+    "name": "(-) APOSTAS EM ANDAMENTO - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.04"
+  },
+  {
+    "code": "2.1.1.04.0003",
+    "name": "(-) APOSTAS EM ANDAMENTO - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.04"
+  },
+  {
+    "code": "2.1.1.05",
+    "name": "FORNECEDORES NACIONAIS - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.06",
+    "name": "COMISSÕES - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.06.0001",
+    "name": "LINK AFILIADO - PORCINO FERNANDES DA COSTA SEGUNDO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0002",
+    "name": "LINK AFILIADO - PEIXE DA LAMA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0003",
+    "name": "LINK AFILIADO - AGROPECUARIA GRATIDAO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0004",
+    "name": "LINK AFILIADO - DHEOVANE DE SOUSA ALMEIDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0005",
+    "name": "LINK AFILIADO - ALICE A. C. DA SILVA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0006",
+    "name": "LINK AFILIADO - VITINHO MARKETING DIGITAL LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0007",
+    "name": "LINK AFILIADO - LUCAS DANTAS PONTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0008",
+    "name": "LINK AFILIADO - FRANCISCO RENAN SOUSA OLIVEIRA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0009",
+    "name": "LINK AFILIADO - WILTON RAMOS BITTENCOURT",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0010",
+    "name": "LINK AFILIADO - JUNINHO MARKETING DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0011",
+    "name": "LINK AFILIADO - JOSE FRANCISCO DA SILVA JUNIOR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0012",
+    "name": "LINK AFILIADO - SPEEL SOLUÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0013",
+    "name": "LINK AFILIADO - LUCAS DANTAS PONTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0014",
+    "name": "LINK AFILIADO - EVERTON RODRIGUES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0015",
+    "name": "LINK AFILIADO - LUAN KLEYTON ALVES DA SILVA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.06.0016",
+    "name": "LINK AFILIADO - WILTON RAMOS BITTENCOURT",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.1.06"
+  },
+  {
+    "code": "2.1.1.07",
+    "name": "FORNECEDORES NACIONAIS - MMABET",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.08",
+    "name": "COMISSÕES - MMABET",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.09",
+    "name": "FORNECEDORES NACIONAIS - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.10",
+    "name": "COMISSÕES - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.1.11",
+    "name": "FORNECEDORES NACIONAIS - SELECT",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.1"
+  },
+  {
+    "code": "2.1.2",
+    "name": "DEBÊNTURES",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.1.2.01",
+    "name": "DEBÊNTURES CONVERSÍVEIS EM AÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.2"
+  },
+  {
+    "code": "2.1.2.02",
+    "name": "DEBÊNTURES NÃO CONVERSÍVEIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.2"
+  },
+  {
+    "code": "2.1.2.03",
+    "name": "(-) DESÁGIO A APROPRIAR",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.2"
+  },
+  {
+    "code": "2.1.3.01.0029",
+    "name": "KAYQUE DA SILVA LOPES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.3.01"
+  },
+  {
+    "code": "2.1.3.01.0030",
+    "name": "SOUTO, CORREA SOCIEDADE DE ADVOGADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.3.01"
+  },
+  {
+    "code": "2.1.3.02",
+    "name": "FORNECEDORES ESTRANGEIROS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.3"
+  },
+  {
+    "code": "2.1.4",
+    "name": "OBRIGAÇÕES TRIBUTÁRIAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.1.4.01",
+    "name": "IMPOSTOS E CONTRIBUIÇÕES A RECOLHER",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.4"
+  },
+  {
+    "code": "2.1.4.01.0001",
+    "name": "IPI A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0002",
+    "name": "ICMS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0003",
+    "name": "ISS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0004",
+    "name": "PROVISÃO PARA IMPOSTO DE RENDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0005",
+    "name": "PROVISÃO P/ CONTRIBUIÇÃO SOCIAL S/ LUCRO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0006",
+    "name": "IMPOSTO DE RENDA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0007",
+    "name": "CONTRIBUIÇÃO SOCIAL A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0008",
+    "name": "IRRF A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0009",
+    "name": "PIS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0010",
+    "name": "COFINS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0011",
+    "name": "PROVISÃO PARA IOF",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0012",
+    "name": "CRF A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0013",
+    "name": "ISS RETIDO A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0014",
+    "name": "INSS RETIDO A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0015",
+    "name": "SIMPLES NACIONAL A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0016",
+    "name": "SUBSTITUIÇÃO TRIBUTÁRIA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0017",
+    "name": "REFIS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0018",
+    "name": "FIA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0019",
+    "name": "PIS RETIDO A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0020",
+    "name": "COFINS RETIDO A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0021",
+    "name": "CONTRIBUIÇÃO SOCIAL RETIDA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0022",
+    "name": "FUNRURAL A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0023",
+    "name": "CONTRIBUIÇÃO SINDICAL A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0024",
+    "name": "INSS RECEITA BRUTA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0025",
+    "name": "ICMS ANTECIPADO A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0026",
+    "name": "ICMS ANTECIPAÇÃO TOTAL ST A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.4.01.0027",
+    "name": "COSIRF A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.4.01"
+  },
+  {
+    "code": "2.1.5",
+    "name": "OBRIGAÇÕES TRABALHISTA E PREVIDENCIÁRIA",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.1.5.01",
+    "name": "OBRIGAÇÕES COM O PESSOAL",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.5"
+  },
+  {
+    "code": "2.1.5.01.0001",
+    "name": "SALÁRIOS E ORDENADOS A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.01"
+  },
+  {
+    "code": "2.1.5.01.0002",
+    "name": "PRÓ-LABORE A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.01"
+  },
+  {
+    "code": "2.1.5.01.0003",
+    "name": "HONORÁRIOS A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.01"
+  },
+  {
+    "code": "2.1.5.01.0004",
+    "name": "FÉRIAS A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.01"
+  },
+  {
+    "code": "2.1.5.01.0005",
+    "name": "13º SALÁRIO A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.01"
+  },
+  {
+    "code": "2.1.5.02",
+    "name": "OBRIGAÇÕES SOCIAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.5"
+  },
+  {
+    "code": "2.1.5.02.0001",
+    "name": "INSS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.02"
+  },
+  {
+    "code": "2.1.5.02.0002",
+    "name": "FGTS A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.02"
+  },
+  {
+    "code": "2.1.5.02.0003",
+    "name": "PIS S/ FOLHA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.02"
+  },
+  {
+    "code": "2.1.5.02.0004",
+    "name": "IRRF S/FOLHA A RECOLHER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.02"
+  },
+  {
+    "code": "2.1.5.03",
+    "name": "PROVISÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.5"
+  },
+  {
+    "code": "2.1.5.03.0001",
+    "name": "PROVISÕES PARA FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0002",
+    "name": "PROVISÕES PARA 13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0003",
+    "name": "INSS SOBRE PROVISÕES PARA FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0004",
+    "name": "INSS SOBRE PROVISÕES PARA 13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0005",
+    "name": "FGTS SOBRE PROVISÕES PARA FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0006",
+    "name": "FGTS SOBRE PROVISÕES PARA 13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0007",
+    "name": "PIS SOBRE PROVISÕES PARA FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.5.03.0008",
+    "name": "PIS SOBRE PROVISÕES PARA 13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.5.03"
+  },
+  {
+    "code": "2.1.6",
+    "name": "OUTRAS OBRIGAÇÕES",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.1.6.01",
+    "name": "ADIANTAMENTOS A CLIENTES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.6"
+  },
+  {
+    "code": "2.1.6.02",
+    "name": "CONTAS A PAGAR",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.6"
+  },
+  {
+    "code": "2.1.6.02.0001",
+    "name": "HONORÁRIOS CONTÁBEIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.02"
+  },
+  {
+    "code": "2.1.6.03",
+    "name": "ENERGIA ELÉTRICA, ÁGUA E TELEFONE A PAGA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.6"
+  },
+  {
+    "code": "2.1.6.04",
+    "name": "CONTAS CORRENTES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.6"
+  },
+  {
+    "code": "2.1.6.05",
+    "name": "SEGUROS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.6"
+  },
+  {
+    "code": "2.1.6.06",
+    "name": "OUTRAS OBRIGAÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.6"
+  },
+  {
+    "code": "2.1.6.06.0001",
+    "name": "REPASSE A PAGAR - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.06"
+  },
+  {
+    "code": "2.1.6.06.0002",
+    "name": "REPASSE A PAGAR - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.06"
+  },
+  {
+    "code": "2.1.6.06.0003",
+    "name": "REPASSE A PAGAR - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.06"
+  },
+  {
+    "code": "2.1.6.06.0004",
+    "name": "TAXA DE FISCALIZAÇÃO A PAGAR - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.06"
+  },
+  {
+    "code": "2.1.6.06.0005",
+    "name": "TAXA DE FISCALIZAÇÃO A PAGAR - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.06"
+  },
+  {
+    "code": "2.1.6.06.0006",
+    "name": "TAXA DE FISCALIZAÇÃO A PAGAR - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.6.06"
+  },
+  {
+    "code": "2.1.7",
+    "name": "DIVIDENDOS, PART. E JURO SOBRE O CAPITAL",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.1.7.01",
+    "name": "DIVIDENDOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.7"
+  },
+  {
+    "code": "2.1.7.01.0001",
+    "name": "DIVIDENDOS PROPOSTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.7.01"
+  },
+  {
+    "code": "2.1.7.01.0002",
+    "name": "DIVIDENDOS A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.7.01"
+  },
+  {
+    "code": "2.1.7.02",
+    "name": "PARTICIPAÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.7"
+  },
+  {
+    "code": "2.1.7.02.0001",
+    "name": "PARTICIPAÇÕES PROPOSTA A ADMINISTRADORES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.7.02"
+  },
+  {
+    "code": "2.1.7.02.0002",
+    "name": "PARTICIPAÇÕES PROPOSTA A EMPREGADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.7.02"
+  },
+  {
+    "code": "2.1.7.02.0003",
+    "name": "PARTICIPAÇÕES A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.7.02"
+  },
+  {
+    "code": "2.1.7.03",
+    "name": "JUROS SOBRE CAPITAL PRÓPRIO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.1.7"
+  },
+  {
+    "code": "2.1.7.03.0001",
+    "name": "JUROS SOBRE CAPITAL PRÓPRIO A PAGAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.1.7.03"
+  },
+  {
+    "code": "2.1.8",
+    "name": "EMPRÉSTIMOS E FINANCIAMENTOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.1"
+  },
+  {
+    "code": "2.2",
+    "name": "PASSIVO NÃO-CIRCULANTE",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "2"
+  },
+  {
+    "code": "2.2.1",
+    "name": "PASSIVO EXIGÍVEL A LONGO PRAZO",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.2"
+  },
+  {
+    "code": "2.2.1.01",
+    "name": "EMPRÉSTIMOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.02",
+    "name": "EMPRÉSTIMOS ESTRANGEIROS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.03",
+    "name": "FINANCIAMENTOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.03.0001",
+    "name": "BANCO FINASA S/A",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.2.1.03"
+  },
+  {
+    "code": "2.2.1.04",
+    "name": "FINANCIAMENTOS ESTRANGEIROS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.05",
+    "name": "CONTROLADORA, CONTROLADAS E COLIGADAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.06",
+    "name": "OUTROS DÉBITOS COM SÓCIOS, ADM, PESSOAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.06.0001",
+    "name": "LUCRO A DISTRIBUIR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.2.1.06"
+  },
+  {
+    "code": "2.2.1.08",
+    "name": "FORNECEDORES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.09",
+    "name": "OBRIGAÇÕES TRIBUTÁRIAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.09.0001",
+    "name": "PROVISÃO PARA IR SOBRE LUCROS DIFERIDOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.2.1.09"
+  },
+  {
+    "code": "2.2.1.09.0002",
+    "name": "CRÉDITOS DA CSLL SOBRE BENS DO ATIVO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.2.1.09"
+  },
+  {
+    "code": "2.2.1.10",
+    "name": "PARCELAMENTOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.2.1.10.001",
+    "name": "PARCELAMENTO FEDERAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.2.1.10"
+  },
+  {
+    "code": "2.2.1.7",
+    "name": "TÍTULOS A PAGAR",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.2.1"
+  },
+  {
+    "code": "2.3",
+    "name": "PATRIMÔNIO LÍQUIDO",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "2"
+  },
+  {
+    "code": "2.3.1",
+    "name": "CAPITAL SOCIAL",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.3"
+  },
+  {
+    "code": "2.3.1.01",
+    "name": "CAPITAL SUBSCRITO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.3.1"
+  },
+  {
+    "code": "2.3.1.01.0001",
+    "name": "SELECT SOLUÇÕES E MARKETING LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.1.01"
+  },
+  {
+    "code": "2.3.1.01.0002",
+    "name": "HLD JT PARTICIPAÇÕES LTDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.1.01"
+  },
+  {
+    "code": "2.3.1.01.0003",
+    "name": "CAICOS P. E EMPREENDIMENTOS S.A.",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.1.01"
+  },
+  {
+    "code": "2.3.1.02",
+    "name": "(-) CAPITAL A INTEGRALIZAR",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.3.1"
+  },
+  {
+    "code": "2.3.1.02.0001",
+    "name": "CAPITAL A INTEGRALIZAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.1.02"
+  },
+  {
+    "code": "2.3.2",
+    "name": "RESERVAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.3"
+  },
+  {
+    "code": "2.3.2.01",
+    "name": "RESERVAS DE CAPITAL",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.3.2"
+  },
+  {
+    "code": "2.3.2.01.0001",
+    "name": "ÁGIO NA EMISSÃO DE AÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.01"
+  },
+  {
+    "code": "2.3.2.01.0002",
+    "name": "DOAÇÕES E SUBVENÇÕES PARA INVESTIMENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.01"
+  },
+  {
+    "code": "2.3.2.01.0003",
+    "name": "(-) AÇÕES/QUOTAS EM TESOURARIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.01"
+  },
+  {
+    "code": "2.3.2.01.0004",
+    "name": "CORREÇÃO MONETÁRIA DO CAP. INTEGRALIZADO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.01"
+  },
+  {
+    "code": "2.3.2.02",
+    "name": "RESERVA DE REAVALIAÇÃO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.3.2"
+  },
+  {
+    "code": "2.3.2.02.0001",
+    "name": "REAVALIAÇÃO DE ATIVOS COLIGADAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.02"
+  },
+  {
+    "code": "2.3.2.02.0002",
+    "name": "REAVALIAÇÃO DE ATIVOS PRÓPRIOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.02"
+  },
+  {
+    "code": "2.3.2.03",
+    "name": "RESERVAS DE LUCROS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.3.2"
+  },
+  {
+    "code": "2.3.2.03.0001",
+    "name": "RESERVA ESTATUTÁRIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.03"
+  },
+  {
+    "code": "2.3.2.03.0002",
+    "name": "RESERVA PARA CONTINGÊNCIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.03"
+  },
+  {
+    "code": "2.3.2.03.0003",
+    "name": "RESERVA DE LUCROS A REALIZAR",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.03"
+  },
+  {
+    "code": "2.3.2.03.0004",
+    "name": "RESERVA ESPECIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.03"
+  },
+  {
+    "code": "2.3.2.03.0005",
+    "name": "(-) AÇÕES/QUOTAS EM TESOURARIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.03"
+  },
+  {
+    "code": "2.3.2.03.0006",
+    "name": "RESERVA LEGAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.2.03"
+  },
+  {
+    "code": "2.3.5",
+    "name": "LUCROS OU PREJUÍZOS ACUMULADOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "2.3"
+  },
+  {
+    "code": "2.3.5.01",
+    "name": "LUCROS OU PREJUÍZOS ACUMULADOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "2.3.5"
+  },
+  {
+    "code": "2.3.5.01.0001",
+    "name": "LUCROS ACUMULADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.5.01"
+  },
+  {
+    "code": "2.3.5.01.0002",
+    "name": "(-) PREJUÍZOS ACUMULADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.5.01"
+  },
+  {
+    "code": "2.3.5.01.0003",
+    "name": "RESULTADO DO EXERCÍCIO EM CURSO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.5.01"
+  },
+  {
+    "code": "2.3.5.01.0004",
+    "name": "LUCRO DO EXERCÍCIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.5.01"
+  },
+  {
+    "code": "2.3.5.01.0005",
+    "name": "(-) PREJUÍZO DO EXERCÍCIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "2.3.5.01"
+  },
+  {
+    "code": "3",
+    "name": "CONTAS DE RESULTADOS - CUSTOS E DESPESAS",
+    "isS": true,
+    "grau": 1,
+    "parent_code": null
+  },
+  {
+    "code": "3.1",
+    "name": "CUSTOS DOS SERVIÇOS PRESTADOS",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "3"
+  },
+  {
+    "code": "3.1.1",
+    "name": "CUSTOS DIRETOS DE PRODUÇÃO",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.1.01",
+    "name": "MATERIAL APLICADO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.1"
+  },
+  {
+    "code": "3.1.1.01.0001",
+    "name": "MATÉRIA-PRIMA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.01"
+  },
+  {
+    "code": "3.1.1.02",
+    "name": "MÃO-DE-OBRA DIRETA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.1"
+  },
+  {
+    "code": "3.1.1.02.0001",
+    "name": "SALÁRIOS E ORDENADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0002",
+    "name": "PRÓ-LABORE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0003",
+    "name": "PRÊMIOS DE GRATIFICAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0004",
+    "name": "13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0005",
+    "name": "FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0006",
+    "name": "INSS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0007",
+    "name": "FGTS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0008",
+    "name": "INDENIZAÇÕES E AVISO PRÉVIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0009",
+    "name": "ASSISTÊNCIA MÉDICA E SOCIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.1.02.0010",
+    "name": "PIS S/ FOLHA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.1.02"
+  },
+  {
+    "code": "3.1.2",
+    "name": "CUSTOS INDIRETOS DE PRODUÇÃO",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.2.01",
+    "name": "MÃO-DE-OBRA INDIRETA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.02",
+    "name": "MATERIAIS DE CONSUMO INDIRETO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.03",
+    "name": "MATERIAIS DE MANUTENÇÃO E REPARO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.04",
+    "name": "UTILIDADES E SERVIÇOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.05",
+    "name": "ALUGUEIS E ARRENDAMENTOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.06",
+    "name": "DEPRECIAÇÕES, AMORTIZAÇÕES E EXAUSTÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.06.0001",
+    "name": "DEPRECIAÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.2.06"
+  },
+  {
+    "code": "3.1.2.07",
+    "name": "COMBUSTÍVEIS E ENERGIA ELÉTRICA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.2"
+  },
+  {
+    "code": "3.1.2.07.0001",
+    "name": "COMBUSTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.2.07"
+  },
+  {
+    "code": "3.1.3",
+    "name": "CUSTOS DIRETOS DA PRODUÇÃO DE SERVIÇOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.3.01",
+    "name": "MÃO-DE-OBRA DIRETA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.3"
+  },
+  {
+    "code": "3.1.4",
+    "name": "CUSTOS DE MERCADORIAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.4.01",
+    "name": "CUSTOS DE MERCADORIAS ADQUIRIDAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.4"
+  },
+  {
+    "code": "3.1.4.01.0001",
+    "name": "ICMS ANTECIPAÇÃO PARCIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.4.01"
+  },
+  {
+    "code": "3.1.4.01.0002",
+    "name": "ICMS ANTECIPAÇÃO TOTAL - ST",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.4.01"
+  },
+  {
+    "code": "3.1.4.01.0003",
+    "name": "BONIFICAÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.4.01"
+  },
+  {
+    "code": "3.1.5",
+    "name": "CUSTOS DOS PRODUTOS VENDIDOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.5.01",
+    "name": "CUSTOS DOS PRODUTOS VENDIDOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.5"
+  },
+  {
+    "code": "3.1.5.01.0001",
+    "name": "CUSTOS DOS PRODUTOS VENDIDOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.5.01"
+  },
+  {
+    "code": "3.1.6",
+    "name": "CUSTOS DOS INSUMOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.6.01",
+    "name": "CUSTOS DOS INSUMOS - MMABET",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.6"
+  },
+  {
+    "code": "3.1.6.01.0001",
+    "name": "PROPAGANDA E PUBLICIDADE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0002",
+    "name": "SISTEMAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0003",
+    "name": "PLATAFORMAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0004",
+    "name": "MARKETING DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0005",
+    "name": "SOFTWARE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0006",
+    "name": "PATROCÍNIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0007",
+    "name": "TRAFEGO DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.01.0008",
+    "name": "STREAMER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.01"
+  },
+  {
+    "code": "3.1.6.02",
+    "name": "CUSTOS DOS INSUMOS - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.6"
+  },
+  {
+    "code": "3.1.6.02.0001",
+    "name": "SISTEMAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.02.0002",
+    "name": "PLATAFORMAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.02.0003",
+    "name": "MARKETING DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.02.0004",
+    "name": "STREAMER",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.02.0005",
+    "name": "PROPAGANDA E PUBLICIDADE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.02.0006",
+    "name": "TRAFEGO DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.02.0007",
+    "name": "INFLUENCIADORES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.02"
+  },
+  {
+    "code": "3.1.6.03",
+    "name": "CUSTOS DOS INSUMOS - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.6"
+  },
+  {
+    "code": "3.1.6.03.0001",
+    "name": "PATROCINIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0002",
+    "name": "TRAFEGO DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0003",
+    "name": "PROPAGANDA E PUBLICIDADE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0004",
+    "name": "INFLUENCIADORES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0005",
+    "name": "PLATAFORMA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0006",
+    "name": "TELEATENDIMENTO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0007",
+    "name": "MARKETING DIGITAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0008",
+    "name": "SISTEMAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.6.03.0009",
+    "name": "COMISSÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.6.03"
+  },
+  {
+    "code": "3.1.7",
+    "name": "CUSTOS DAS MERCADORIAS VENDIDAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.1"
+  },
+  {
+    "code": "3.1.7.01",
+    "name": "CUSTOS DAS MERCADORIAS VENDIDAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.1.7"
+  },
+  {
+    "code": "3.1.7.01.0001",
+    "name": "CUSTOS DAS MERCADORIAS VENDIDAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.1.7.01"
+  },
+  {
+    "code": "3.2",
+    "name": "DESPESAS OPERACIONAIS",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "3"
+  },
+  {
+    "code": "3.2.1",
+    "name": "DESPESAS COM VENDAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.2"
+  },
+  {
+    "code": "3.2.1.01",
+    "name": "DESPESAS COM PESSOAL",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.01.0001",
+    "name": "SALÁRIOS E ORDENADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0002",
+    "name": "PRÓ-LABORE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0003",
+    "name": "PRÊMIOS E GRATIFICAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0004",
+    "name": "13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0005",
+    "name": "FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0006",
+    "name": "INSS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0007",
+    "name": "FGTS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0008",
+    "name": "INDENIZAÇÕES E AVISO PRÉVIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0009",
+    "name": "ASSISTÊNCIA MÉDICA E SOCIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.01.0010",
+    "name": "PIS S/ FOLHA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.01"
+  },
+  {
+    "code": "3.2.1.02",
+    "name": "DESPESAS COM REPASSE",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.02.0001",
+    "name": "DESPESAS COM REPASSE - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.02"
+  },
+  {
+    "code": "3.2.1.02.0002",
+    "name": "DESPESAS COM REPASSE - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.02"
+  },
+  {
+    "code": "3.2.1.02.0003",
+    "name": "DESPESAS COM REPASSE - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.02"
+  },
+  {
+    "code": "3.2.1.03",
+    "name": "PROPAGANDA E PUBLICIDADE",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.03.0002",
+    "name": "AMOSTRAS GRÁTIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.03"
+  },
+  {
+    "code": "3.2.1.04",
+    "name": "DESPESAS COM ENTREGA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.04.0001",
+    "name": "FRETES E CARRETOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.04"
+  },
+  {
+    "code": "3.2.1.04.0002",
+    "name": "MANUTENÇÃO DE VEÍCULOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.04"
+  },
+  {
+    "code": "3.2.1.05",
+    "name": "DESPESAS COM VIAGENS E REPRESENTAÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.05.0001",
+    "name": "VIAGENS TERRESTRES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.05"
+  },
+  {
+    "code": "3.2.1.05.0002",
+    "name": "VIAGENS AÉREAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.05"
+  },
+  {
+    "code": "3.2.1.05.0003",
+    "name": "HOSPEDAGEM",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.05"
+  },
+  {
+    "code": "3.2.1.05.0004",
+    "name": "REFEIÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.05"
+  },
+  {
+    "code": "3.2.1.06",
+    "name": "DESPESAS GERAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.06.0001",
+    "name": "ALUGUÉIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0002",
+    "name": "MANUTENÇÃO E REPARO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0003",
+    "name": "TELEFONE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0004",
+    "name": "DESPESAS POSTAIS E TELEGRÁFICAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0005",
+    "name": "DEPRECIAÇÕES E AMORTIZAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0006",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0007",
+    "name": "SEGUROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0008",
+    "name": "REPASSE DE RECURSOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.06.0009",
+    "name": "PATROCÍNIOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.06"
+  },
+  {
+    "code": "3.2.1.07",
+    "name": "PERDAS NO RECEBIMENTO DE CRÉDITOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.1"
+  },
+  {
+    "code": "3.2.1.07.0001",
+    "name": "CRÉDITOS VENCIDOS E NÃO LIQUIDADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.1.07"
+  },
+  {
+    "code": "3.2.2",
+    "name": "DESPESAS ADMINISTRATIVAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.2"
+  },
+  {
+    "code": "3.2.2.01",
+    "name": "DESPESAS COM PESSOAL",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.01.0001",
+    "name": "SALÁRIOS E ORDENADOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0002",
+    "name": "PRÓ-LABORE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0003",
+    "name": "PRÊMIOS E GRATIFICAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0004",
+    "name": "13º SALÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0005",
+    "name": "FÉRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0006",
+    "name": "INSS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0007",
+    "name": "FGTS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0008",
+    "name": "INDENIZAÇÕES E AVISO PRÉVIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0009",
+    "name": "ASSISTÊNCIA MÉDICA E SOCIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0010",
+    "name": "VALE TRANSPORTE",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0011",
+    "name": "PIS S/ FOLHA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.01.0012",
+    "name": "DESPESAS COM ALIMENTAÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.01"
+  },
+  {
+    "code": "3.2.2.02",
+    "name": "ALUGUÉIS E ARRENDAMENTOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.02.0001",
+    "name": "ALUGUÉIS DE IMÓVEIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.02"
+  },
+  {
+    "code": "3.2.2.02.0002",
+    "name": "ALUGUÉIS DE MÁQUINAS E EQUIPAMENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.02"
+  },
+  {
+    "code": "3.2.2.02.0003",
+    "name": "ARRENDAMENTO DE IMÓVEIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.02"
+  },
+  {
+    "code": "3.2.2.02.0004",
+    "name": "ARRENDAMENTO MERCANTIL (LEASING)",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.02"
+  },
+  {
+    "code": "3.2.2.03",
+    "name": "IMPOSTOS, TAXAS E CONTRIBUIÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.03.0001",
+    "name": "PIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.03.0002",
+    "name": "COFINS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.03.0003",
+    "name": "IPTU",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.03.0004",
+    "name": "IPVA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.03.0005",
+    "name": "TAXAS DIVERSAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.03.0006",
+    "name": "CPMF",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.03.0007",
+    "name": "TAXA DE FISCALIZAÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.03"
+  },
+  {
+    "code": "3.2.2.04",
+    "name": "DESPESAS GERAIS - MMABET",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.04.0001",
+    "name": "ENERGIA ELÉTRICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0002",
+    "name": "ÁGUA E ESGOTO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0003",
+    "name": "TELEFONE E INTERNET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0004",
+    "name": "SEGUROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0005",
+    "name": "MATERIAL DE USO E CONSUMO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0006",
+    "name": "MATERIAL DE ESCRITÓRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0007",
+    "name": "MATERIAL DE HIGIENE E LIMPEZA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0008",
+    "name": "ASSISTÊNCIA CONTÁBIL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0009",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0010",
+    "name": "DEPRECIAÇÕES E AMORTIZAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0011",
+    "name": "ASSESSORIA JURIDICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0012",
+    "name": "DESPESAS LEGAIS E JUDICIAIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0013",
+    "name": "LIVROS, JORNAIS E REVISTAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0015",
+    "name": "MATERIAL DE COPA E COZINHA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0016",
+    "name": "DESPESAS C/COMBUSTÍVEIS E LUBRIFICANTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0019",
+    "name": "VIAGENS E HOSPEDAGENS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0020",
+    "name": "DESPESAS C/TRANSPORTES AEREOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0021",
+    "name": "EVENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0022",
+    "name": "SAUDE E SEGURANÇA DO TRABALHO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0023",
+    "name": "AUDITORIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0027",
+    "name": "CONSULTORIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.04.0029",
+    "name": "DESPESAS COM APORTE DE LICENÇA - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.04"
+  },
+  {
+    "code": "3.2.2.05",
+    "name": "DESPESAS FINANCEIRAS - MMABET",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.05.0001",
+    "name": "JUROS PASSIVOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0002",
+    "name": "VARIAÇÕES MONETÁRIAS PASSIVAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0003",
+    "name": "VARIAÇÕES CAMBIAIS PASSIVAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0004",
+    "name": "DESCONTO CONCEDIDOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0005",
+    "name": "JUROS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0006",
+    "name": "JUROS SOBRE CAPITAL PRÓPRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0007",
+    "name": "MULTAS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0008",
+    "name": "JUROS SOBRE EMPRÉSTIMOS E FINANCIAMENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0009",
+    "name": "DESPESAS BANCÁRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.05.0010",
+    "name": "JUROS E COMISSÕES BANCÁRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.05"
+  },
+  {
+    "code": "3.2.2.06",
+    "name": "OUTRAS DESPESAS OPERACIONAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.06.0001",
+    "name": "PROVISÕES P/ PERDAS E A JUSTES DE ATIVOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.06"
+  },
+  {
+    "code": "3.2.2.06.0002",
+    "name": "EQUIVALÊNCIA  PATRIMONIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.06"
+  },
+  {
+    "code": "3.2.2.06.0003",
+    "name": "AMORTIZAÇÃO DE ÁGIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.06"
+  },
+  {
+    "code": "3.2.2.07",
+    "name": "DESPESAS GERAIS - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.07.0001",
+    "name": "ENERGIA ELÉTRICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0002",
+    "name": "ÁGUA E ESGOTO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0003",
+    "name": "TELEFONE E INTERNET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0004",
+    "name": "DESPESAS JUDICIAIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0006",
+    "name": "ASSISTÊNCIA CONTÁBIL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0008",
+    "name": "VIAGENS E HOSPEDAGENS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0009",
+    "name": "ASSESSORIA JURÍDICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0010",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0012",
+    "name": "LOCAÇÃO DE VEÍCULOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0014",
+    "name": "MATERIAL DE USO E CONSUMO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0016",
+    "name": "DESPESAS COM APORTE DE LICENÇA - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.07.0017",
+    "name": "CONSULTORIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.07"
+  },
+  {
+    "code": "3.2.2.08",
+    "name": "DESPESAS FINANCEIRAS - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.08.0001",
+    "name": "JUROS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.08"
+  },
+  {
+    "code": "3.2.2.08.0002",
+    "name": "JUROS E COMISSÕES BANCARIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.08"
+  },
+  {
+    "code": "3.2.2.08.0003",
+    "name": "MULTAS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.08"
+  },
+  {
+    "code": "3.2.2.09",
+    "name": "DESPESAS GERAIS - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.09.0001",
+    "name": "ASSESSORIA CONTABIL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0002",
+    "name": "LICENÇAS E DOCUMENTAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0003",
+    "name": "BRINDES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0004",
+    "name": "ASSESSORIA JURÍDICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0005",
+    "name": "SEGUROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0007",
+    "name": "ALUGUEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0010",
+    "name": "VIAGENS E HOSPEDAGENS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0013",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0015",
+    "name": "DESPESAS COM REFORMA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0016",
+    "name": "CONSULTORIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0018",
+    "name": "EVENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0019",
+    "name": "MATERIAL DE USO E CONSUMO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.09.0021",
+    "name": "DESPESAS COM APORTE DE LICENÇA - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.09"
+  },
+  {
+    "code": "3.2.2.10",
+    "name": "DESPESAS FINANCEIRAS - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.10.0001",
+    "name": "JUROS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.10"
+  },
+  {
+    "code": "3.2.2.10.0002",
+    "name": "JUROS E COMISSÕES BANCARIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.10"
+  },
+  {
+    "code": "3.2.2.10.0003",
+    "name": "MULTAS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.10"
+  },
+  {
+    "code": "3.2.2.10.0004",
+    "name": "MULTAS FISCAIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.10"
+  },
+  {
+    "code": "3.2.2.11",
+    "name": "DESPESAS GERAIS - SELECT",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.11.0001",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.11.0002",
+    "name": "ASSESSORIA CONTABIL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.11.0003",
+    "name": "ASSESSORIA JURIDICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.11.0004",
+    "name": "DESPESAS COM APORTE DE LICENÇA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.11.0005",
+    "name": "CONSULTORIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.11.0006",
+    "name": "VIAGENS E HOSPEDAGENS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.11.0007",
+    "name": "HONORÁRIOS DIRETORES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.11"
+  },
+  {
+    "code": "3.2.2.12",
+    "name": "DESPESAS FINANCEIRAS - SELECT",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.12.0001",
+    "name": "JUROS E DESPESAS BANCARIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.12"
+  },
+  {
+    "code": "3.2.2.12.0002",
+    "name": "TAXA DE CUSTÓDIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.12"
+  },
+  {
+    "code": "3.2.2.12.0003",
+    "name": "JUROS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.12"
+  },
+  {
+    "code": "3.2.2.12.0004",
+    "name": "MULTAS DE MORA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.12"
+  },
+  {
+    "code": "3.2.2.13",
+    "name": "DESPESAS INDEDUTÍVEIS - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.13.0001",
+    "name": "MARKETING DIGITAL - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0002",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0003",
+    "name": "PLATAFORMAS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0004",
+    "name": "VIAGENS E HOSPEDAGENS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0005",
+    "name": "SISTEMAS - INDEDUTÍVEIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0006",
+    "name": "ASSESSORIA JURÍDICA - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0007",
+    "name": "EVENTOS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0008",
+    "name": "MATERIAL DE USO E CONSUMO - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.13.0009",
+    "name": "CONSULTORIA - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.13"
+  },
+  {
+    "code": "3.2.2.14",
+    "name": "DESPESAS INDEDUTÍVEIS - MMABET",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.14.0001",
+    "name": "MARKETING DIGITAL - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0002",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0003",
+    "name": "TRAFEGO DIGITAL - INDEDUTIVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0004",
+    "name": "PLATAFORMAS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0005",
+    "name": "PROPAGANDA E PUBLICIDADE - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0006",
+    "name": "SISTEMAS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0007",
+    "name": "CONSULTORIA - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.14.0008",
+    "name": "ASSESSORIA JURÍDICA - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.14"
+  },
+  {
+    "code": "3.2.2.15",
+    "name": "DESPESAS INDEDUTÍVEIS - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.15.0001",
+    "name": "MARKETING DIGITAL - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.15.0002",
+    "name": "SERVIÇOS PRESTADOS POR TERCEIROS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.15.0003",
+    "name": "ASSESSORIA JURÍDICA - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.15.0004",
+    "name": "VIAGENS E HOSPEDAGENS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.15.0005",
+    "name": "TRAFEGO DIGITAL - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.15.0006",
+    "name": "SISTEMAS - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.15.0007",
+    "name": "PROPAGANDA E PUBLICIDADE - INDEDUTÍVEL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.15"
+  },
+  {
+    "code": "3.2.2.17",
+    "name": "DESPESAS TRIBUTARIAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.2.2"
+  },
+  {
+    "code": "3.2.2.17.0001",
+    "name": "IMPOSTO DE RENDA PESSOA JURÍDICA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.17"
+  },
+  {
+    "code": "3.2.2.17.0002",
+    "name": "CONTRIBUIÇÃO SOCIAL S/LUCRO LIQUIDO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.2.2.17"
+  },
+  {
+    "code": "3.3",
+    "name": "DESPESAS NÃO OPERACIONAIS",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "3"
+  },
+  {
+    "code": "3.3.1",
+    "name": "RESULTADOS NÃO OPERACIONAIS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "3.3"
+  },
+  {
+    "code": "3.3.1.01",
+    "name": "RESULTADOS NEGATIVOS NA ALIEN. DE INVEST",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.3.1"
+  },
+  {
+    "code": "3.3.1.01.0001",
+    "name": "PERDAS NA ALIENAÇÃO EM PAR. EM COLIGADAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.01"
+  },
+  {
+    "code": "3.3.1.02",
+    "name": "RESULTADO NEGATIVO NA ALIENAÇÃO DO IMOB.",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.3.1"
+  },
+  {
+    "code": "3.3.1.02.0001",
+    "name": "PERDAS NA ALIENAÇÃO DE IMÓVEIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.02"
+  },
+  {
+    "code": "3.3.1.02.0002",
+    "name": "PERDAS NA ALIENAÇÃO DE MÓVEIS E UTENS.",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.02"
+  },
+  {
+    "code": "3.3.1.02.0003",
+    "name": "PERDAS NA ALIENAÇÃO DE MAQ. EQUIPAMENTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.02"
+  },
+  {
+    "code": "3.3.1.02.0004",
+    "name": "PERDAS NA ALIENAÇÃO DE VEÍCULOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.02"
+  },
+  {
+    "code": "3.3.1.03",
+    "name": "RESULTADO NEGATIVO DE SINISTRO COM IMOB.",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.3.1"
+  },
+  {
+    "code": "3.3.1.03.0001",
+    "name": "PERDAS EM SINISTROS COM IMOBILIZADO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.03"
+  },
+  {
+    "code": "3.3.1.04",
+    "name": "OUTRAS BAIXAS DO ATIVO PERMANENTE",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.3.1"
+  },
+  {
+    "code": "3.3.1.04.0001",
+    "name": "BAIXAS DE INVESTIMENTOS PERMANENTES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.04"
+  },
+  {
+    "code": "3.3.1.04.0002",
+    "name": "BAIXAS DE IMOBILIZADO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.04"
+  },
+  {
+    "code": "3.3.1.04.0003",
+    "name": "BAIXAS DE ATIVO DIFERIDO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.04"
+  },
+  {
+    "code": "3.3.1.05",
+    "name": "PROVISÕES PARA PERDAS PERMANENTE",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.3.1"
+  },
+  {
+    "code": "3.3.1.05.0001",
+    "name": "CONTROLADAS E COLIGADAS - EQUIV. PATRIM.",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.05"
+  },
+  {
+    "code": "3.3.1.05.0002",
+    "name": "CONTROLAS E COLIGADAS - CUSTO CORRIGIDO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.05"
+  },
+  {
+    "code": "3.3.1.05.0003",
+    "name": "OUTRAS PARTICIPAÇÕES SOCIETÁRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.05"
+  },
+  {
+    "code": "3.3.1.06",
+    "name": "PERDAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "3.3.1"
+  },
+  {
+    "code": "3.3.1.06.0001",
+    "name": "PERDAS POR FALTA NO INVENTÁRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.06"
+  },
+  {
+    "code": "3.3.1.06.0002",
+    "name": "PERDA DE CRÉDITO DE ICMS S/ IMOBILIZADO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "3.3.1.06"
+  },
+  {
+    "code": "4",
+    "name": "CONTAS DE RESULTADO - RECEITAS",
+    "isS": true,
+    "grau": 1,
+    "parent_code": null
+  },
+  {
+    "code": "4.1",
+    "name": "RECEITAS OPERACIONAIS",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "4"
+  },
+  {
+    "code": "4.1.1",
+    "name": "RECEITA BRUTA DE VENDAS E SERVIÇOS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "4.1"
+  },
+  {
+    "code": "4.1.1.01",
+    "name": "RECEITA BRUTAS DE VENDAS E MERCADORIAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.1"
+  },
+  {
+    "code": "4.1.1.01.0001",
+    "name": "VENDA DE PRODUTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.01"
+  },
+  {
+    "code": "4.1.1.01.0002",
+    "name": "VENDA DE PRODUTOS NO MERCADO EXTERNO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.01"
+  },
+  {
+    "code": "4.1.1.01.0003",
+    "name": "VENDA DE MERCADORIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.01"
+  },
+  {
+    "code": "4.1.1.01.0004",
+    "name": "VENDA DE MERCADORIAS NO MERCADO EXTERNO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.01"
+  },
+  {
+    "code": "4.1.1.02",
+    "name": "RECEITA DE APOSTAS DE QUOTA FIXA",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.1"
+  },
+  {
+    "code": "4.1.1.02.0001",
+    "name": "SERVIÇOS DE MARKETING",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.02"
+  },
+  {
+    "code": "4.1.1.02.0002",
+    "name": "GROSS GAMING REVENUE (GGR) - MMABET",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.02"
+  },
+  {
+    "code": "4.1.1.02.0003",
+    "name": "GROSS GAMING REVENUE (GGR) - PAPIGAMES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.02"
+  },
+  {
+    "code": "4.1.1.02.0004",
+    "name": "GROSS GAMING REVENUE (GGR) - BETVIP",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.1.02"
+  },
+  {
+    "code": "4.1.2",
+    "name": "(-) DEDUÇÕES DA RECEITA BRUTA",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "4.1"
+  },
+  {
+    "code": "4.1.2.01",
+    "name": "(-) CANCELAMENTO E DEVOLUÇÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.2"
+  },
+  {
+    "code": "4.1.2.01.0001",
+    "name": "(-) DEVOLUÇÃO DE VENDA DE PRODUTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.01"
+  },
+  {
+    "code": "4.1.2.01.0002",
+    "name": "(-) DEV. VENDA DE PRODUTOS MERCADO EXT.",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.01"
+  },
+  {
+    "code": "4.1.2.01.0003",
+    "name": "(-) DEVOLUÇÃO DE VENDA DE MERCADORIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.01"
+  },
+  {
+    "code": "4.1.2.01.0004",
+    "name": "(-) DEV. VENDA DE MERCADORIAS MERC. EXT",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.01"
+  },
+  {
+    "code": "4.1.2.02",
+    "name": "(-) DESCONTOS INCONDICIONAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.2"
+  },
+  {
+    "code": "4.1.2.02.0001",
+    "name": "(-) DESCONTO VENDA DE PRODUTOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.02"
+  },
+  {
+    "code": "4.1.2.02.0002",
+    "name": "(-) DESCONTO VENDA DE PRODUTO MERC. EXT",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.02"
+  },
+  {
+    "code": "4.1.2.02.0003",
+    "name": "(-) DESCONTO VENDA DE MERCADORIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.02"
+  },
+  {
+    "code": "4.1.2.02.0004",
+    "name": "(-) DESC. VENDA DE MERCADORIAS MERC. EXT",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.02"
+  },
+  {
+    "code": "4.1.2.03",
+    "name": "(-) IMPOSTOS SOBRE VENDAS E SERVIÇOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.2"
+  },
+  {
+    "code": "4.1.2.03.0001",
+    "name": "(-) IPI",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0002",
+    "name": "(-) ICMS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0003",
+    "name": "(-) ISS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0004",
+    "name": "(-) COFINS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0005",
+    "name": "(-) PIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0006",
+    "name": "(-) CONTRIBUIÇÃO SOCIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0007",
+    "name": "(-) IMPOSTO DE RENDA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0008",
+    "name": "(-) SIMPLES NACIONAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0009",
+    "name": "(-) SUBSTITUIÇÃO TRIBUTÁRIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0010",
+    "name": "(-) REFIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0011",
+    "name": "(-) FIA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.03.0012",
+    "name": "(-) INSS RECEITA BRUTA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.03"
+  },
+  {
+    "code": "4.1.2.04",
+    "name": "(-) IMPOSTOS SOBRE VENDAS E SERVIÇOS - PAPIGAMES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.2"
+  },
+  {
+    "code": "4.1.2.04.0001",
+    "name": "(-) ISS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.04"
+  },
+  {
+    "code": "4.1.2.04.0002",
+    "name": "(-) COFINS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.04"
+  },
+  {
+    "code": "4.1.2.04.0003",
+    "name": "(-) PIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.04"
+  },
+  {
+    "code": "4.1.2.05",
+    "name": "(-) IMPOSTOS SOBRE VENDAS E SERVIÇOS - BETVIP",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.2"
+  },
+  {
+    "code": "4.1.2.05.0001",
+    "name": "(-) ISS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.05"
+  },
+  {
+    "code": "4.1.2.05.0002",
+    "name": "(-) COFINS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.05"
+  },
+  {
+    "code": "4.1.2.05.0003",
+    "name": "(-) PIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.2.05"
+  },
+  {
+    "code": "4.1.3",
+    "name": "RECEITAS FINANCEIRAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "4.1"
+  },
+  {
+    "code": "4.1.3.01",
+    "name": "JUROS E DESCONTOS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.3"
+  },
+  {
+    "code": "4.1.3.01.0001",
+    "name": "JUROS DE APLICAÇÕES",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.01"
+  },
+  {
+    "code": "4.1.3.01.0002",
+    "name": "JUROS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.01"
+  },
+  {
+    "code": "4.1.3.01.0003",
+    "name": "DESCONTOS FINANCEIROS OBTIDOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.01"
+  },
+  {
+    "code": "4.1.3.01.0004",
+    "name": "JUROS SOBRE O CAPITAL PRÓPRIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.01"
+  },
+  {
+    "code": "4.1.3.01.0005",
+    "name": "MULTA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.01"
+  },
+  {
+    "code": "4.1.3.02",
+    "name": "VARIAÇÕES MONETÁRIAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.3"
+  },
+  {
+    "code": "4.1.3.02.0001",
+    "name": "VARIAÇÕES MONETÁRIAS ATIVAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.02"
+  },
+  {
+    "code": "4.1.3.02.0002",
+    "name": "VARIAÇÕES CAMBIAIS ATIVAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.3.02"
+  },
+  {
+    "code": "4.1.4",
+    "name": "RECUPERAÇÃO DE DESPESAS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "4.1"
+  },
+  {
+    "code": "4.1.4.01",
+    "name": "RECUP. CRÉDITOS CONSIDERADOS INCOBRÁVEIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.4"
+  },
+  {
+    "code": "4.1.4.02",
+    "name": "REVERSÃO DE PROVISÕES",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.4"
+  },
+  {
+    "code": "4.1.5",
+    "name": "OUTRAS RECEITAS OPERACIONAIS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "4.1"
+  },
+  {
+    "code": "4.1.5.01",
+    "name": "RECEITAS DIVERSAS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.1.5"
+  },
+  {
+    "code": "4.1.5.01.0001",
+    "name": "INDENIZAÇÃO JUDICIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.5.01"
+  },
+  {
+    "code": "4.1.5.01.0002",
+    "name": "VENDAS ACESSÓRIAS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.5.01"
+  },
+  {
+    "code": "4.1.5.01.0003",
+    "name": "RECEITA DE EQUIVALÊNCIA PATRIMONIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.5.01"
+  },
+  {
+    "code": "4.1.5.01.0004",
+    "name": "DIVIDENDOS E LUCROS RECEBIDOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.5.01"
+  },
+  {
+    "code": "4.1.5.01.0005",
+    "name": "AMORTIZAÇÃO DE DESÁGIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.5.01"
+  },
+  {
+    "code": "4.1.5.01.0006",
+    "name": "RECEITAS COM BONIFICAÇÃO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.1.5.01"
+  },
+  {
+    "code": "4.2",
+    "name": "RECEITAS NÃO OPERACIONAIS",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "4"
+  },
+  {
+    "code": "4.2.1",
+    "name": "RESULTADOS NÃO OPERACIONAIS",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "4.2"
+  },
+  {
+    "code": "4.2.1.01",
+    "name": "RESULTADOS POSIT. NA ALIEN. DE INVESTIM",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.2.1"
+  },
+  {
+    "code": "4.2.1.01.0001",
+    "name": "LUCROS NA ALIENAÇÃO DE PART. EM COLIGADA",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.01"
+  },
+  {
+    "code": "4.2.1.02",
+    "name": "LUCROS NA ALIENAÇÃO DE IMOBILIZADO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.2.1"
+  },
+  {
+    "code": "4.2.1.02.0001",
+    "name": "LUCROS NA ALIENAÇÃO DE IMÓVEIS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.02"
+  },
+  {
+    "code": "4.2.1.02.0002",
+    "name": "LUCROS NA ALIENAÇÃO DE MÓVEIS E UTENS.",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.02"
+  },
+  {
+    "code": "4.2.1.02.0003",
+    "name": "LUCROS NA ALIEN. DE MÁQ. EQUIP. FERRAMEN",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.02"
+  },
+  {
+    "code": "4.2.1.02.0004",
+    "name": "LUCROS NA ALIENAÇÃO DE VEÍCULOS",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.02"
+  },
+  {
+    "code": "4.2.1.03",
+    "name": "RESULTADO DE SINISTROS COM IMOBILIZADO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.2.1"
+  },
+  {
+    "code": "4.2.1.03.0002",
+    "name": "SINISTROS COM IMOBILIZADO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.03"
+  },
+  {
+    "code": "4.2.1.04",
+    "name": "OUTRAS RECEITAS NÃO OPERACIONAIS",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "4.2.1"
+  },
+  {
+    "code": "4.2.1.04.0001",
+    "name": "INDENIZAÇÃO JUDICIAL",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "4.2.1.04"
+  },
+  {
+    "code": "5",
+    "name": "CONTAS DE APURAÇÃO",
+    "isS": true,
+    "grau": 1,
+    "parent_code": null
+  },
+  {
+    "code": "5.1",
+    "name": "APURAÇÃO DO RESULTADO DO EXERCÍCIO",
+    "isS": true,
+    "grau": 2,
+    "parent_code": "5"
+  },
+  {
+    "code": "5.1.4",
+    "name": "APURAÇÃO DO RESULTADO DO EXERCÍCIO",
+    "isS": true,
+    "grau": 3,
+    "parent_code": "5.1"
+  },
+  {
+    "code": "5.1.4.01",
+    "name": "APURAÇÃO DO RESULTADO DO EXERCÍCIO",
+    "isS": true,
+    "grau": 4,
+    "parent_code": "5.1.4"
+  },
+  {
+    "code": "5.1.4.01.0001",
+    "name": "RESULTADO DO EXERCÍCIO",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "5.1.4.01"
+  },
+  {
+    "code": "5.1.4.01.0002",
+    "name": "GANHOS/PERDAS NA ALIENAÇÃO DE IMOB.",
+    "isS": false,
+    "grau": 5,
+    "parent_code": "5.1.4.01"
+  }
+]

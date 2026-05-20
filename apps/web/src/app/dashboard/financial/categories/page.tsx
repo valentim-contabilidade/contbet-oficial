@@ -16,9 +16,27 @@ function CategoryForm({ initial, onSubmit, onCancel, current, companies }: { ini
     color: initial?.color ?? '#c9a961',
     description: initial?.description ?? '',
     company_id: initial?.company_id ?? (current.profile === 'MANAGER' ? current.company_id : ''),
+    default_nature_id: initial?.default_nature_id ?? '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [natures, setNatures] = useState<{ id: string; name: string; dre_section: string; type: string }[]>([]);
+
+  // Carrega naturezas da empresa selecionada (filtra por tipo compatível com categoria)
+  useEffect(() => {
+    if (!data.company_id) { setNatures([]); return; }
+    const expectedNatType = data.type === 'INCOME' ? 'RECEITA' : 'DESPESA';
+    api.get('/financial/natures', { params: { company_id: data.company_id, type: expectedNatType, page: 1 } })
+      .then(r => setNatures(r.data.data || []))
+      .catch(() => setNatures([]));
+  }, [data.company_id, data.type]);
+
+  // Se mudou o tipo e a natureza atual já não é compatível, limpa
+  useEffect(() => {
+    if (!data.default_nature_id) return;
+    const found = natures.find(n => n.id === data.default_nature_id);
+    if (!found) setData(d => ({ ...d, default_nature_id: '' }));
+  }, [natures]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +50,8 @@ function CategoryForm({ initial, onSubmit, onCancel, current, companies }: { ini
         const payload: any = { name: data.name, type: data.type, color: data.color };
         if (data.description) payload.description = data.description;
         if (!isEdit) payload.company_id = data.company_id;
+        // Sempre envia o campo (mesmo vazio) para permitir limpar o link com Natureza
+        payload.default_nature_id = data.default_nature_id || '';
         await onSubmit(payload);
       } catch (err: any) { setErrors({ form: err.response?.data?.message ?? 'Erro ao salvar.' }); }
       finally { setSubmitting(false); }
@@ -67,6 +87,18 @@ function CategoryForm({ initial, onSubmit, onCancel, current, companies }: { ini
           </Select>
         </Field>
       )}
+      <Field label="Natureza padrão (DRE)">
+        <Select value={data.default_nature_id} onChange={e => setData({ ...data, default_nature_id: e.target.value })} disabled={!data.company_id}>
+          <option value="">— sem natureza padrão —</option>
+          {natures.map(n => (
+            <option key={n.id} value={n.id}>{n.name}</option>
+          ))}
+        </Select>
+        <p className="text-[11px] text-stone-500 mt-1">
+          Define em qual linha da DRE os lançamentos com esta categoria entram.
+          Será pré-selecionada automaticamente ao escolher a categoria num pagamento ou recebimento.
+        </p>
+      </Field>
       <Field label="Descrição">
         <textarea value={data.description ?? ''} onChange={e => setData({ ...data, description: e.target.value })}
           className="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 text-sm focus:outline-none focus:border-ink rounded-sm min-h-[60px]" maxLength={300} />
@@ -131,12 +163,13 @@ export default function CategoriesPage() {
               <tr>
                 <th className="text-left px-4 py-3 text-xs uppercase tracking-wider text-stone-600">Categoria</th>
                 <th className="text-left px-4 py-3 text-xs uppercase tracking-wider text-stone-600">Tipo</th>
+                <th className="text-left px-4 py-3 text-xs uppercase tracking-wider text-stone-600">Natureza padrão (DRE)</th>
                 <th className="text-left px-4 py-3 text-xs uppercase tracking-wider text-stone-600">Status</th>
                 <th className="text-right px-4 py-3 text-xs uppercase tracking-wider text-stone-600">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {items.length === 0 && <tr><td colSpan={4} className="text-center py-12 text-stone-500">Nenhuma categoria cadastrada.</td></tr>}
+              {items.length === 0 && <tr><td colSpan={5} className="text-center py-12 text-stone-500">Nenhuma categoria cadastrada.</td></tr>}
               {items.map(c => (
                 <tr key={c.id} className="border-b border-stone-100 hover:bg-stone-50">
                   <td className="px-4 py-3">
@@ -149,6 +182,13 @@ export default function CategoriesPage() {
                     <span className={`text-xs px-2 py-1 rounded-sm ${c.type === 'INCOME' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                       {categoryTypeLabels[c.type]}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {c.default_nature ? (
+                      <span className="text-stone-700">{c.default_nature.name}</span>
+                    ) : (
+                      <span className="text-stone-400 italic">— não definida —</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-1 rounded-sm ${c.is_active ? 'bg-green-50 text-green-700' : 'bg-stone-100 text-stone-500'}`}>
