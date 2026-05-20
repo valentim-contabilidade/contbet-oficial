@@ -200,6 +200,12 @@ enum BankConnectionStatus {
   ERROR
 }
 
+enum AuditAlertLevel {
+  OK
+  WARNING
+  CRITICAL
+}
+
 enum FiscalCertificateStatus {
   ACTIVE
   EXPIRED
@@ -238,6 +244,14 @@ model Company {
   state       String   @db.VarChar(2)
   logo        String?  @db.Text
   tax_regime  TaxRegime @default(LUCRO_REAL)
+  // true = escritório contábil (a própria firma que opera o ContBet),
+  // false = cliente operadora de apostas. Apenas 1 escritório por instalação.
+  // Usado no fluxo AutenticaProcurador (cert A1 do escritório vira procurador eCAC).
+  is_office_account Boolean @default(false)
+  // true = empresa fictícia usada apenas como modelo de referência (plano de
+  // contas modelo, configurações default). Não opera, não tem A1 nem clientes
+  // reais. Fica oculta nas listagens normais.
+  is_template Boolean @default(false)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   metadeleted Boolean  @default(false)
@@ -268,6 +282,10 @@ model Company {
   journal_entries      JournalEntry[]
   bank_integration     BankIntegration?
   bank_connections     BankConnection[]
+  audit_movements_checks AuditMovementsCheck[]
+  audit_fees_checks      AuditFeesCheck[]
+  audit_taxes_checks     AuditTaxesCheck[]
+  audit_alerts           AuditAlert[]
 
   @@index([metadeleted])
   @@map("companies")
@@ -289,14 +307,55 @@ model User {
 
   company_id String?
   company    Company? @relation(fields: [company_id], references: [id])
+  // brand_id: marca "primária" (compatibilidade com OWNER de marca única).
+  // Para gestores com múltiplas marcas, use a tabela `brand_users` (N:N).
   brand_id   String?
   brand      Brand?   @relation(fields: [brand_id], references: [id])
 
-  audit_logs AuditLog[]
+  audit_logs        AuditLog[]
+  brand_assignments BrandUser[]
+  claim_attempts    FiscalClaimAttempt[]
 
   @@index([metadeleted])
   @@index([company_id])
   @@map("users")
+}
+
+/// Atribuição N:N entre usuário e marca, usada por gestores (OWNER) que
+/// administram financeiramente múltiplas marcas. Quando vazia para um OWNER,
+/// o sistema cai de volta para `User.brand_id` (compatibilidade retroativa).
+model BrandUser {
+  user_id    String
+  brand_id   String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  brand      Brand    @relation(fields: [brand_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+
+  @@id([user_id, brand_id])
+  @@index([user_id])
+  @@index([brand_id])
+  @@map("brand_users")
+}
+
+/// Tentativas de reivindicação de NF (claim) — usadas para rate-limit
+/// anti-fishing. Após 3 falhas em 10min, o usuário fica bloqueado por 3min
+/// e precisa tentar com trio diferente (Nº + CNPJ + valor) antes de
+/// reutilizar qualquer tentativa anterior.
+model FiscalClaimAttempt {
+  id                 String   @id @default(cuid())
+  user_id            String
+  user               User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  brand_id           String   // marca para a qual o gestor tentou
+  document_number    String
+  issuer_cnpj        String   // CNPJ normalizado (só dígitos)
+  total_amount_cents BigInt
+  success            Boolean
+  failure_reason     String?  // NOT_FOUND, ALREADY_CLAIMED, MULTIPLE_MATCHES, INVALID_AMOUNT...
+  attempted_at       DateTime @default(now())
+
+  @@index([user_id, attempted_at])
+  @@index([attempted_at])
+  @@map("fiscal_claim_attempts")
 }
 
 model Brand {
@@ -313,6 +372,7 @@ model Brand {
   company    Company @relation(fields: [company_id], references: [id])
 
   users                User[]
+  user_assignments     BrandUser[]
   accounts_payable     AccountPayable[]
   accounts_receivable  AccountReceivable[]
   transactions         Transaction[]
@@ -321,6 +381,7 @@ model Brand {
   data_sources         DataSource[]
   contacts             Contact[] @relation("ContactBrand")
   journal_entries      JournalEntry[]
+  fiscal_documents     FiscalDocument[] @relation("FiscalDocBrand")
 
   @@index([metadeleted])
   @@index([company_id])
@@ -462,12 +523,19 @@ model FinancialCategory {
   company_id String
   company    Company @relation(fields: [company_id], references: [id])
 
+  // Natureza contábil padrão sugerida quando esta categoria é usada num
+  // lançamento. Não impede o usuário de escolher outra natureza, mas
+  // pré-popula o campo no formulário, vinculando categoria à DRE.
+  default_nature_id String?
+  default_nature    FinancialNature? @relation("CategoryDefaultNature", fields: [default_nature_id], references: [id])
+
   payables    AccountPayable[]
   receivables AccountReceivable[]
   transactions Transaction[]
 
   @@index([metadeleted])
   @@index([company_id])
+  @@index([default_nature_id])
   @@map("financial_categories")
 }
 
@@ -505,6 +573,8 @@ model FinancialNature {
 
   payables    AccountPayable[]
   receivables AccountReceivable[]
+  // Categorias que usam essa natureza como padrão (auto-preenchimento)
+  default_for_categories FinancialCategory[] @relation("CategoryDefaultNature")
 
   @@index([metadeleted])
   @@index([company_id])
@@ -541,6 +611,17 @@ model BankAccount {
   // ID da conta no provedor (Pluggy accountId) — usado para sync incremental.
   provider_account_id  String?
 
+  // Flag para auditoria de segregação: marca contas que custodiam dinheiro
+  // dos apostadores (Lei 14.790 art. 5º). O saldo dessas contas tem que bater
+  // com depósitos/saques registrados pelo sistema de apostas.
+  is_player_wallet Boolean @default(false)
+
+  // Taxas contratadas com o banco (em centavos por transação).
+  // Usadas pela auditoria de tarifas: quantidade de depósitos × fee_per_credit
+  // + quantidade de saques × fee_per_debit = tarifas esperadas no período.
+  fee_per_credit BigInt @default(0)
+  fee_per_debit  BigInt @default(0)
+
   transactions       Transaction[] @relation("AccountTransactions")
   transfers_received Transaction[] @relation("TransferDestination")
   statements         BankStatement[]
@@ -570,6 +651,20 @@ model AccountPayable {
   generates_pis_cofins_credit Boolean @default(false)
   pis_credit_amount    BigInt @default(0)
   cofins_credit_amount BigInt @default(0)
+
+  // === Retenções federais (CSRF) — serviços tomados de PJ ===
+  // Quando is_service_from_pj=true, a fonte pagadora retém na fonte:
+  //   IRRF 1,5%  (Lei 9.430/96 art. 647)
+  //   CSLL 1,0%  +
+  //   PIS  0,65% +  CSRF (IN RFB 459/04)
+  //   COFINS 3,0% (total CSRF = 6,15%)
+  // O valor LÍQUIDO pago ao fornecedor = amount - (4 retenções).
+  // As retenções viram obrigação de DARF (ainda fora deste MVP — fase 2).
+  is_service_from_pj Boolean @default(false)
+  irrf_retained      BigInt  @default(0)
+  csll_retained      BigInt  @default(0)
+  pis_retained       BigInt  @default(0)
+  cofins_retained    BigInt  @default(0)
 
   source           PayableSource @default(MANUAL)
   duplicate_of_id  String?
@@ -622,6 +717,7 @@ model AccountPayable {
   @@index([nature_id])
   @@index([source])
   @@index([duplicate_of_id])
+  @@index([is_service_from_pj])
   @@map("accounts_payable")
 }
 
@@ -782,6 +878,13 @@ model GgrDailyRecord {
   total_prizes       BigInt @default(0)
   total_deposits     BigInt @default(0)
   total_withdrawals  BigInt @default(0)
+  // Gamificação: total de bônus distribuídos no dia (freespin + freebet).
+  // Em reais (armazenado em centavos). Despesa de marketing/aquisição
+  // dedutível em IRPJ/CSLL.
+  total_bonus        BigInt @default(0)
+  // Cashback distribuído no dia. Separado do bônus porque a metodologia
+  // DEDUCT_CASHBACK abate só esse, sem o bônus.
+  total_cashback     BigInt @default(0)
 
   bet_count          Int    @default(0)
   prize_count        Int    @default(0)
@@ -829,10 +932,20 @@ model GgrMonthlyApuration {
   total_deposits     BigInt @default(0)
   total_withdrawals  BigInt @default(0)
 
+  // Bônus distribuído + cashback no mês (entrada para metodologias com abatimento)
+  total_bonus     BigInt @default(0)
+  total_cashback  BigInt @default(0)
+
   ggr           BigInt @default(0)
   net_revenue   BigInt @default(0)
 
-  tax_lei14790_rate    Decimal @default(12.0) @db.Decimal(5, 2)
+  // Metodologia aplicada nesta apuração (snapshot — imutável após fechamento)
+  ggr_methodology GgrMethodology @default(OFFICIAL)
+  // Cópia do termo (URL + data) no momento do fechamento — auditoria/historico
+  ggr_term_snapshot_url    String?   @db.Text
+  ggr_term_snapshot_signed DateTime?
+
+  tax_lei14790_rate    Decimal @default(13.0) @db.Decimal(5, 2)
   tax_lei14790_amount  BigInt  @default(0)
 
   irrf_threshold_cents BigInt  @default(282400)
@@ -935,6 +1048,21 @@ model CompanyTaxConfig {
   iss_rate             Decimal            @default(5.0) @db.Decimal(5, 2)
   iss_calculation_base IssCalculationBase @default(GGR)
 
+  // === Metodologia de cálculo do GGR para a Lei 14.790 ===
+  // OFFICIAL                : GGR = apostas - prêmios (interpretação SPA/MF, sem risco)
+  // DEDUCT_CASHBACK         : GGR = apostas - prêmios - cashback (tese jurídica leve)
+  // DEDUCT_BONUS_CASHBACK   : GGR = apostas - prêmios - bônus distribuído - cashback (tese mais ampla)
+  //
+  // As duas opções com "abatimento" exigem termo de responsabilidade assinado
+  // pelo representante legal antes de serem aplicadas em apurações.
+  ggr_methodology         GgrMethodology @default(OFFICIAL)
+  ggr_term_pdf_url        String?        @db.Text
+  ggr_term_pdf_data       Bytes?
+  ggr_term_signed_at      DateTime?
+  ggr_term_signed_by_name String?
+  ggr_term_signed_by_cpf  String?
+  ggr_term_uploaded_by_id String?
+
   notes String? @db.Text
 
   company_id String  @unique
@@ -944,6 +1072,12 @@ model CompanyTaxConfig {
   updated_at DateTime @updatedAt
 
   @@map("company_tax_configs")
+}
+
+enum GgrMethodology {
+  OFFICIAL
+  DEDUCT_CASHBACK
+  DEDUCT_BONUS_CASHBACK
 }
 
 model IrpjCsllApuration {
@@ -1181,6 +1315,13 @@ model BankIntegration {
   last_error   String?   @db.Text
   notes        String?   @db.Text
 
+  // Token aleatório usado para autenticar webhooks de entrada (passado como
+  // query string ?t=xxx). Mais simples que HMAC e suficiente: a URL inteira
+  // é o segredo. Gerado automaticamente ao salvar o config.
+  webhook_token  String? @db.Text
+  // Última vez que recebeu um webhook (audit/health-check).
+  last_webhook_at DateTime?
+
   company_id String  @unique
   company    Company @relation(fields: [company_id], references: [id])
 
@@ -1234,6 +1375,156 @@ model BankConnection {
   @@index([company_id])
   @@index([status])
   @@map("bank_connections")
+}
+
+model AuditMovementsCheck {
+  id String @id @default(cuid())
+
+  // Período auditado
+  from_date DateTime @db.Date
+  to_date   DateTime @db.Date
+
+  // Totais agregados (em centavos)
+  // Origem A: sistema de apostas (GgrDailyRecord)
+  sistema_deposits     BigInt @default(0)
+  sistema_withdrawals  BigInt @default(0)
+  sistema_net          BigInt @default(0)
+  // Origem B: extratos bancários (BankStatementLine das contas marcadas como player_wallet)
+  banco_deposits       BigInt @default(0)
+  banco_withdrawals    BigInt @default(0)
+  banco_net            BigInt @default(0)
+  // Diferenças
+  diff_deposits        BigInt @default(0)
+  diff_withdrawals     BigInt @default(0)
+  diff_net             BigInt @default(0)
+
+  alert_level   AuditAlertLevel @default(OK)
+  notes         String?         @db.Text
+  // Detalhes diários em JSON: [{ date, sistema_*, banco_*, diff_*, cumulative_diff_net }]
+  daily_breakdown Json?
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  triggered_by_user_id String?
+
+  created_at DateTime @default(now())
+  metadeleted Boolean @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([from_date, to_date])
+  @@map("audit_movements_checks")
+}
+
+model AuditTaxesCheck {
+  id String @id @default(cuid())
+
+  from_date DateTime @db.Date
+  to_date   DateTime @db.Date
+
+  // Calculados (apurações fechadas no período) vs pagos (payables status PAID)
+  calculated_total BigInt @default(0)
+  paid_total       BigInt @default(0)
+  diff_total       BigInt @default(0)
+
+  // Quebra por tipo de tributo, em JSON:
+  // [{ type: "IRPJ", calculated, paid, diff, items: [{ apuration_id, period_label, calculated, paid, diff }] }]
+  per_tax_breakdown Json?
+
+  alert_level AuditAlertLevel @default(OK)
+  notes       String?         @db.Text
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  triggered_by_user_id String?
+
+  created_at  DateTime @default(now())
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([from_date, to_date])
+  @@map("audit_taxes_checks")
+}
+
+enum AuditCheckType {
+  MOVEMENTS
+  FEES
+  TAXES
+}
+
+model AuditAlert {
+  id String @id @default(cuid())
+
+  check_type     AuditCheckType
+  // ID do snapshot (AuditMovementsCheck/AuditFeesCheck/AuditTaxesCheck)
+  reference_id   String
+
+  // Transição registrada: "OK" -> "WARNING", "WARNING" -> "CRITICAL", etc.
+  previous_level AuditAlertLevel?
+  current_level  AuditAlertLevel
+
+  message     String?  @db.Text
+  acknowledged Boolean  @default(false)
+  acknowledged_at DateTime?
+  acknowledged_by_user_id String?
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  created_at  DateTime @default(now())
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id, acknowledged])
+  @@index([check_type])
+  @@map("audit_alerts")
+}
+
+model AuditFeesCheck {
+  id String @id @default(cuid())
+
+  from_date DateTime @db.Date
+  to_date   DateTime @db.Date
+
+  // Origem A — sistema
+  total_deposits_count    Int @default(0)
+  total_withdrawals_count Int @default(0)
+
+  // Tarifas esperadas (calculadas com base em fee_per_credit/debit das contas)
+  expected_credit_fees BigInt @default(0)
+  expected_debit_fees  BigInt @default(0)
+  expected_total_fees  BigInt @default(0)
+
+  // Tarifas efetivamente cobradas (somadas dos extratos quando linhas
+  // estiverem classificadas como tarifa). Quando 0, indica que ainda não
+  // houve classificação no extrato — usuário deve auditar manualmente.
+  actual_total_fees BigInt @default(0)
+
+  diff_total_fees BigInt @default(0)
+
+  alert_level AuditAlertLevel @default(OK)
+  notes       String?         @db.Text
+
+  // Detalhamento por conta auditada — JSON
+  // [{ account_id, account_name, fee_per_credit, fee_per_debit,
+  //    deposits_count, withdrawals_count, expected_fees }]
+  per_account_breakdown Json?
+
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  triggered_by_user_id String?
+
+  created_at  DateTime @default(now())
+  metadeleted Boolean  @default(false)
+
+  @@index([metadeleted])
+  @@index([company_id])
+  @@index([from_date, to_date])
+  @@map("audit_fees_checks")
 }
 
 model FiscalProvider {
@@ -1381,6 +1672,18 @@ model FiscalDocument {
   company_id String
   company    Company @relation(fields: [company_id], references: [id])
 
+  // Marca operacional ligada a esta nota (ex.: NFe da Pixbet pode ser
+  // alocada a uma marca específica como BetDaSorte ou Pibet). Opcional —
+  // notas podem ficar no nível da empresa sem marca.
+  brand_id String?
+  brand    Brand?  @relation("FiscalDocBrand", fields: [brand_id], references: [id])
+
+  // Confirmação manual: quando preenchido, a nota foi conferida e teve uma
+  // AccountPayable criada/vinculada. Notas com confirmed_at=NULL ficam na
+  // "caixa de entrada" aguardando seleção de marca + clique em Confirmar.
+  confirmed_at      DateTime?
+  confirmed_by_user_id String?
+
   provider_id String
   provider    FiscalProvider @relation(fields: [provider_id], references: [id])
 
@@ -1390,9 +1693,11 @@ model FiscalDocument {
 
   @@index([metadeleted])
   @@index([company_id])
+  @@index([brand_id])
   @@index([document_type])
   @@index([direction])
   @@index([status])
+  @@index([confirmed_at])
   @@index([issue_date])
   @@index([issuer_cnpj])
   @@index([recipient_cnpj])
@@ -1426,4 +1731,67 @@ model FiscalSyncLog {
   @@index([company_id])
   @@index([created_at])
   @@map("fiscal_sync_logs")
+}
+
+/// Sessão Serpro Integra Contador (procurador eCAC).
+/// Tabela com no máximo 1 linha (singleton) — só existe uma sessão de
+/// procurador por instalação. Os tokens são armazenados criptografados
+/// (AES-256-GCM via fiscal/crypto.helper) e cacheados em memória; esta
+/// tabela existe apenas para sobreviver a restarts da API.
+model SerproSession {
+  id String @id @default(cuid())
+
+  contratante_cnpj String
+  encrypted_jwt_token       String @db.Text
+  encrypted_access_token    String @db.Text
+  expires_at DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("serpro_sessions")
+}
+
+/// Cache de protocolos SITFIS (para sobreviver a restarts da API).
+/// SITFIS é assíncrono (Apoiar+Emitir) e Serpro retorna 304 quando você
+/// solicita protocolo da mesma empresa em < 30min — exigindo reuso do
+/// protocolo anterior.
+model SerproSitfisProtocol {
+  id String @id @default(cuid())
+
+  contribuinte_cnpj String @unique
+  protocolo_relatorio String @db.Text
+  tempo_espera Int @default(0)
+
+  cached_at DateTime @default(now())
+
+  @@map("serpro_sitfis_protocols")
+}
+
+/// Parametrização global (escritório) das regras de lançamento contábil.
+/// Cada event_key mapeia para débito/crédito (por código do plano padrão),
+/// histórico Domínio e template de descrição. Substitui constantes hard-coded
+/// em journal-posting.service.ts.
+model AccountingRule {
+  id String @id @default(cuid())
+
+  event_key   String @unique
+  group       String   // GGR_DAILY, PAYABLE_PAID, RECEIVABLE, TAX_APURATION
+  label       String   // descrição legível em PT-BR
+  description String?  @db.Text
+
+  debit_code  String?  // ex: "1.1.1.01" — código do plano padrão
+  credit_code String?
+
+  historic_code     Int?     // código do histórico no Domínio (1-999)
+  historic_template String?  @db.Text // ex: "Pagamento de {fornecedor} ref. {documento}"
+
+  active   Boolean @default(true)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  metadeleted Boolean  @default(false)
+
+  @@index([group])
+  @@map("accounting_rules")
 }
