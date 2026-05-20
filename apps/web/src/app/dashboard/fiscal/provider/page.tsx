@@ -141,8 +141,16 @@ export default function FiscalProviderPage() {
     try {
       const res = await api.post(`/fiscal/provider/${companyId}/test`, {});
       setTestResult({ ok: true, message: res.data.message });
+      // Recarrega o provider pra refletir o last_error=null no estado
+      const fresh = await api.get(`/fiscal/provider/${companyId}`);
+      setProvider(fresh.data);
     } catch (err: any) {
       setTestResult({ ok: false, message: err.response?.data?.message || 'Erro de conexão' });
+      // Recarrega também em erro (last_error foi atualizado no backend)
+      try {
+        const fresh = await api.get(`/fiscal/provider/${companyId}`);
+        setProvider(fresh.data);
+      } catch { /* ignora */ }
     } finally { setTesting(false); }
   };
 
@@ -214,13 +222,18 @@ export default function FiscalProviderPage() {
             <div className="space-y-4">
               <Field label="Provedor">
                 <Select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as FiscalProviderType })}>
-                  <option value="PLUGNOTAS">PlugNotas (recomendado)</option>
-                  <option value="FOCUS_NFE" disabled>Focus NFe (em breve)</option>
+                  <option value="ARQUIVEI">Qive (antiga Arquivei) — captura NFSe</option>
+                  <option value="PLUGNOTAS">PlugNotas — emissão NFSe</option>
+                  <option value="FOCUS_NFE" disabled>Focus NFe (descontinuado)</option>
                   <option value="NFE_IO" disabled>NFE.io (em breve)</option>
                 </Select>
               </Field>
 
-              <Field label="Chave API (X-API-KEY)" required={!provider}>
+              <Field label={
+                form.type === 'FOCUS_NFE' ? 'Token de acesso (Focus NFe)' :
+                form.type === 'ARQUIVEI' ? 'Credencial Qive (formato API_ID:API_KEY)' :
+                'Chave API (X-API-KEY)'
+              } required={!provider}>
                 <div className="relative">
                   <Input
                     type={showApiKey ? 'text' : 'password'}
@@ -238,7 +251,13 @@ export default function FiscalProviderPage() {
                   </button>
                 </div>
                 <div className="text-xs text-stone-500 mt-1">
-                  💡 Encontre sua chave API em <a href="https://app.plugnotas.com.br" target="_blank" rel="noopener" className="text-ink underline inline-flex items-center gap-1">app.plugnotas.com.br <ExternalLink className="w-3 h-3" /></a>
+                  {form.type === 'FOCUS_NFE' ? (
+                    <>💡 Token gerado em <a href="https://app.focusnfe.com.br" target="_blank" rel="noopener" className="text-ink underline inline-flex items-center gap-1">app.focusnfe.com.br <ExternalLink className="w-3 h-3" /></a> — use o token de homologação se "modo sandbox" estiver ativo, ou produção se desativado.</>
+                  ) : form.type === 'ARQUIVEI' ? (
+                    <>💡 Cole a credencial no formato <code className="px-1 bg-stone-100 rounded">API_ID:API_KEY</code> (com dois-pontos). Gerada em <a href="https://developers.qive.com.br" target="_blank" rel="noopener" className="text-ink underline inline-flex items-center gap-1">developers.qive.com.br <ExternalLink className="w-3 h-3" /></a>. Qive é captador read-only de NFSe Tomadas — não emite notas.</>
+                  ) : (
+                    <>💡 Encontre sua chave API em <a href="https://app.plugnotas.com.br" target="_blank" rel="noopener" className="text-ink underline inline-flex items-center gap-1">app.plugnotas.com.br <ExternalLink className="w-3 h-3" /></a></>
+                  )}
                 </div>
               </Field>
 

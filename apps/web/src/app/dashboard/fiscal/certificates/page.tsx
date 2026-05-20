@@ -116,7 +116,7 @@ export default function FiscalCertificatesPage() {
   const [deleteTarget, setDeleteTarget] = useState<FiscalCertificate | null>(null);
 
   useEffect(() => {
-    api.get('/companies').then(r => {
+    api.get('/companies', { params: { include_office: 'true' } }).then(r => {
       setCompanies(r.data.data);
       if (user?.profile === 'MANAGER' && user.company_id) setCompanyId(user.company_id);
       else if (r.data.data.length > 0) setCompanyId(r.data.data[0].id);
@@ -261,7 +261,7 @@ export default function FiscalCertificatesPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
-                        {!c.uploaded_to_provider_at && c.status === 'ACTIVE' && (
+                        {c.status === 'ACTIVE' && (
                           <button onClick={async () => {
                             try {
                               await api.post(`/fiscal/certificates/${c.id}/sync-provider`);
@@ -270,15 +270,14 @@ export default function FiscalCertificatesPage() {
                               alert(err?.response?.data?.message ?? 'Erro ao sincronizar com provedor.');
                             }
                           }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-sm transition mr-1"
-                            title="Enviar este certificado ao PlugNotas">
-                            ⇅ Sincronizar com provedor
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-sm border transition mr-1 ${
+                              c.uploaded_to_provider_at
+                                ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
+                                : 'text-sky-700 bg-sky-50 hover:bg-sky-100 border-sky-200'
+                            }`}
+                            title={c.uploaded_to_provider_at ? 'Re-enviar certificado ao provedor (atualiza flags)' : 'Enviar este certificado ao provedor'}>
+                            {c.uploaded_to_provider_at ? '✓ Re-sincronizar' : '⇅ Sincronizar com provedor'}
                           </button>
-                        )}
-                        {c.uploaded_to_provider_at && (
-                          <span className="inline-block text-xs px-2 py-0.5 rounded-sm bg-green-50 text-green-700 border border-green-200 mr-1">
-                            ✓ Provedor
-                          </span>
                         )}
                         <button onClick={() => setDeleteTarget(c)}
                           className="p-1.5 text-stone-500 hover:text-red-600 hover:bg-red-50 rounded-sm">
